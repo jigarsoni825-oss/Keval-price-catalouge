@@ -1,77 +1,702 @@
+/* ============================================================
+   KEVAL MOBILE ZONE | MASTER NEON STYLE ENGINE
+   Created By: Jigar
+   Version: 3.0 (Final Production)
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. ROOT VARIABLES & GLOBAL RESET
+   ------------------------------------------------------------ */
 :root {
-  --bg: #050508; --panel: #0d0d15; --cyan: #00f0ff; --green: #00ff88;
-  --purple: #bc00ff; --border: #1e1e30; --text: #f0f0ff;
+    /* Primary Color Palette */
+    --bg-black: #050508;
+    --bg-dark: #0d0d15;
+    --bg-glass: rgba(13, 13, 21, 0.85);
+    
+    /* Neon Accents */
+    --neon-cyan: #00f0ff;
+    --neon-cyan-glow: rgba(0, 240, 255, 0.4);
+    --neon-purple: #bc00ff;
+    --neon-purple-glow: rgba(188, 0, 255, 0.4);
+    --neon-green: #00ff88;
+    --neon-green-glow: rgba(0, 255, 136, 0.4);
+    --neon-yellow: #ffcc00;
+    --neon-yellow-glow: rgba(255, 204, 0, 0.4);
+    --neon-red: #ff1744;
+    --neon-red-glow: rgba(255, 23, 68, 0.4);
+    
+    /* Typography & Borders */
+    --text-main: #f0f0ff;
+    --text-muted: #8b82af;
+    --border-dim: #1e1e30;
+    --border-bright: #2d2d44;
+    
+    /* Transitions */
+    --smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --fast: 0.15s ease-out;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-body { background: var(--bg); color: var(--text); overflow-x: hidden; }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    scrollbar-width: thin;
+    scrollbar-color: var(--neon-purple) var(--bg-black);
+}
+
+body {
+    background-color: var(--bg-black);
+    color: var(--text-main);
+    overflow-x: hidden;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-black); }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--neon-cyan); }
+
 .hidden { display: none !important; }
 .full-w { width: 100%; }
 .mt-20 { margin-top: 20px; }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-/* Nav */
+/* ------------------------------------------------------------
+   2. HEADER & NAVIGATION (NEON HUB)
+   ------------------------------------------------------------ */
 .neon-nav {
-  display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;
-  background: var(--panel); border-bottom: 2px solid var(--purple);
-  box-shadow: 0 0 15px rgba(188, 0, 255, 0.3); position: sticky; top: 0; z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background: var(--bg-glass);
+    border-bottom: 2px solid var(--neon-purple);
+    box-shadow: 0 0 20px var(--neon-purple-glow);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
-.brand-box { display: flex; align-items: center; gap: 10px; }
-.status-dot { width: 10px; height: 10px; background: var(--green); border-radius: 50%; box-shadow: 0 0 10px var(--green); }
-.nav-title { font-size: 1rem; font-weight: 900; color: var(--cyan); letter-spacing: 1px; }
 
-/* Cards */
-.container { padding: 20px; max-width: 1400px; margin: 0 auto; min-height: 85vh; }
-.neon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-.card { 
-  background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 15px; 
-  cursor: pointer; position: relative; transition: 0.3s;
+.brand-box { display: flex; align-items: center; gap: 12px; }
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    background: var(--neon-green);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--neon-green);
+    animation: statusPulse 2s infinite ease-in-out;
 }
-.card:hover { border-color: var(--cyan); transform: translateY(-5px); box-shadow: 0 0 20px rgba(0,240,255,0.1); }
-.card-img-box { height: 180px; background: #000; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
-.card-img-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
-/* Buttons & Inputs */
-button { border: none; border-radius: 6px; padding: 12px; font-weight: bold; cursor: pointer; transition: 0.1s; }
-.btn-neon-cyan { background: var(--cyan); color: #000; }
-.btn-neon-green { background: var(--green); color: #000; }
-.btn-neon-purple { background: var(--purple); color: #fff; }
-.btn-neon-icon { background: rgba(0,240,255,0.1); color: var(--cyan); border: 1px solid var(--cyan); padding: 8px 12px; }
-.btn-save-glow { background: linear-gradient(45deg, var(--cyan), var(--purple)); color: #fff; box-shadow: 0 0 20px var(--purple); }
-
-.neon-input, .neon-select, .neon-area { 
-  width: 100%; padding: 14px; background: #000; border: 1px solid var(--border); 
-  color: #fff; margin-bottom: 12px; border-radius: 8px; outline: none;
+@keyframes statusPulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1); }
 }
-.neon-input:focus { border-color: var(--cyan); }
 
-/* Comparison Dock */
-.compare-dock { position: fixed; bottom: 0; left: 0; width: 100%; background: #000; border-top: 2px solid var(--cyan); padding: 15px 20px; z-index: 1500; }
-.dock-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.8rem; font-weight: bold; color: var(--cyan); }
-.dock-items { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
-.dock-pill { background: var(--panel); border: 1px solid var(--border); padding: 8px 12px; border-radius: 20px; white-space: nowrap; font-size: 0.8rem; }
+.nav-title {
+    font-size: 1.1rem;
+    font-weight: 950;
+    color: var(--neon-cyan);
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px var(--neon-cyan-glow);
+}
 
-/* Modals */
-.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 15px; }
-.modal { background: var(--panel); padding: 25px; border-radius: 12px; width: 100%; max-width: 800px; max-height: 90vh; overflow-y: auto; }
-.modal-head { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-.close-btn { background: transparent; color: #fff; font-size: 1.5rem; }
+.nav-actions { display: flex; gap: 12px; }
 
-/* Matrix Table */
-.matrix-table { width: 100%; border-collapse: collapse; min-width: 800px; }
-.matrix-table th, .matrix-table td { padding: 15px; border: 1px solid var(--border); text-align: left; }
-.matrix-table th { background: #000; color: var(--cyan); }
+/* ------------------------------------------------------------
+   3. MASTER BUTTON SYSTEM
+   ------------------------------------------------------------ */
+button {
+    border: none;
+    border-radius: 6px;
+    padding: 10px 18px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: var(--fast);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
 
-/* Details */
-.detail-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; }
-.main-frame { height: 350px; background: #000; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-.neon-price { font-size: 2.2rem; color: var(--green); font-weight: 900; margin: 15px 0; }
-.thumb-row { display: flex; gap: 10px; margin-top: 15px; overflow-x: auto; }
-.thumb { width: 60px; height: 60px; border: 2px solid var(--border); cursor: pointer; object-fit: cover; }
+button:active { transform: scale(0.94); }
 
-/* Footer */
-.neon-footer { text-align: center; padding: 40px; background: var(--panel); border-top: 1px solid var(--border); margin-top: 60px; }
-.credit-text { font-size: 0.9rem; font-weight: bold; margin-top: 5px; color: var(--text); }
-.credit-text span { color: var(--cyan); text-shadow: 0 0 5px var(--cyan); }
+.btn-neon-cyan { 
+    background: var(--neon-cyan); color: #000; 
+    box-shadow: 0 0 12px var(--neon-cyan-glow); 
+}
+.btn-neon-cyan:hover { box-shadow: 0 0 20px var(--neon-cyan); }
 
-@media (max-width: 800px) { .detail-grid { grid-template-columns: 1fr; } .grid-2 { grid-template-columns: 1fr; } }
+.btn-neon-green { 
+    background: var(--neon-green); color: #000; 
+    box-shadow: 0 0 12px var(--neon-green-glow); 
+}
+
+.btn-neon-purple { 
+    background: var(--neon-purple); color: #fff; 
+    box-shadow: 0 0 12px var(--neon-purple-glow); 
+}
+
+.btn-neon-yellow { 
+    background: var(--neon-yellow); color: #000; 
+    box-shadow: 0 0 10px var(--neon-yellow-glow);
+}
+
+.btn-neon-icon {
+    background: rgba(0, 240, 255, 0.08);
+    color: var(--neon-cyan);
+    border: 1px solid var(--neon-cyan);
+}
+.btn-neon-icon:hover { background: var(--neon-cyan); color: #000; }
+
+.btn-save-glow {
+    background: linear-gradient(45deg, var(--neon-cyan), var(--neon-purple));
+    color: #fff;
+    font-size: 1.1rem;
+    padding: 16px;
+    box-shadow: 0 0 25px rgba(188, 0, 255, 0.5);
+    border-radius: 8px;
+    margin-top: 15px;
+}
+.btn-save-glow:hover { box-shadow: 0 0 35px var(--neon-purple); }
+
+/* ------------------------------------------------------------
+   4. FILTERS & SEARCH (MOBILE SHOP TYPE)
+   ------------------------------------------------------------ */
+.container {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 25px;
+    min-height: 85vh;
+}
+
+.filter-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: var(--bg-dark);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    border: 1px solid var(--border-dim);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.neon-input, .neon-select, .neon-area {
+    width: 100%;
+    padding: 14px;
+    background: #000;
+    border: 1px solid var(--border-dim);
+    color: #fff;
+    border-radius: 8px;
+    outline: none;
+    font-size: 0.95rem;
+    transition: var(--smooth);
+}
+
+.neon-input:focus, .neon-select:focus {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 15px var(--neon-cyan-glow);
+}
+
+.filter-group { display: flex; gap: 12px; width: 100%; }
+
+/* ------------------------------------------------------------
+   5. PRODUCT GRID & CARDS (GLASSMORPHISM)
+   ------------------------------------------------------------ */
+.neon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.card {
+    background: var(--bg-dark);
+    border: 1px solid var(--border-dim);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: var(--smooth);
+    display: flex;
+    flex-direction: column;
+}
+
+.card:hover {
+    border-color: var(--neon-cyan);
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+}
+
+.card::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: var(--neon-purple);
+    box-shadow: 0 0 10px var(--neon-purple);
+}
+
+.card-img-box {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, #000, #0a0a10);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.card-img-box img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    transition: var(--smooth);
+}
+
+.card:hover .card-img-box img { transform: scale(1.08); }
+
+.card-brand {
+    font-size: 0.7rem;
+    color: var(--neon-cyan);
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.card-title {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 8px;
+}
+
+.card-price {
+    font-size: 1.7rem;
+    color: var(--neon-green);
+    font-weight: 950;
+    text-shadow: 0 0 8px var(--neon-green-glow);
+    margin-top: auto;
+}
+
+/* ------------------------------------------------------------
+   6. COMPARISON DOCK (STICKY BOTTOM)
+   ------------------------------------------------------------ */
+.compare-dock {
+    position: fixed;
+    bottom: 0; left: 0;
+    width: 100%;
+    background: rgba(5, 5, 8, 0.96);
+    border-top: 2px solid var(--neon-cyan);
+    padding: 15px 25px;
+    z-index: 1500;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transform: translateY(0);
+    transition: var(--smooth);
+}
+
+.dock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 900;
+    color: var(--neon-cyan);
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+.dock-items {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 5px 0 15px 0;
+}
+
+.dock-pill {
+    background: #11111d;
+    border: 1px solid var(--border-bright);
+    padding: 8px 16px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    color: var(--text-main);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.dock-pill span { color: var(--neon-red); font-weight: bold; cursor: pointer; }
+
+/* ------------------------------------------------------------
+   7. MODALS & NEON OVERLAYS
+   ------------------------------------------------------------ */
+.overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.94);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.modal {
+    background: var(--bg-dark);
+    width: 100%;
+    max-width: 850px;
+    max-height: 92vh;
+    border-radius: 16px;
+    padding: 30px;
+    overflow-y: auto;
+    position: relative;
+    border: 1px solid var(--border-dim);
+}
+
+.modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 1px solid var(--border-bright);
+    padding-bottom: 15px;
+}
+
+.modal-title {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--neon-cyan);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.close-btn {
+    background: transparent;
+    color: #fff;
+    font-size: 1.8rem;
+    line-height: 1;
+    padding: 0 5px;
+}
+
+.neon-border-cyan { border: 2px solid var(--neon-cyan); box-shadow: 0 0 25px var(--neon-cyan-glow); }
+.neon-border-purple { border: 2px solid var(--neon-purple); box-shadow: 0 0 25px var(--neon-purple-glow); }
+
+/* ------------------------------------------------------------
+   8. ADMIN PANEL & LEDGER (MANAGEMENT UI)
+   ------------------------------------------------------------ */
+.admin-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.admin-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.admin-item {
+    background: #11111d;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border-dim);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--fast);
+}
+
+.admin-item:hover { border-color: var(--border-bright); background: #161625; }
+
+.ledger-add-box {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    border: 1px dashed var(--neon-purple);
+}
+
+.ledger-list {
+    max-height: 350px;
+    overflow-y: auto;
+    border: 1px solid var(--border-dim);
+    border-radius: 10px;
+    background: #08080c;
+}
+
+.ledger-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-dim);
+    font-size: 0.85rem;
+}
+
+.ledger-row.sale { border-left: 5px solid var(--neon-red); background: rgba(255, 23, 68, 0.03); }
+.ledger-row.purchase { border-left: 5px solid var(--neon-green); background: rgba(0, 255, 136, 0.03); }
+
+/* ------------------------------------------------------------
+   9. PRODUCT DETAILS (SHOPPING SITE STYLE)
+   ------------------------------------------------------------ */
+.detail-window { max-width: 1100px; padding: 40px; }
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 50px;
+}
+
+.detail-visuals { display: flex; flex-direction: column; gap: 20px; }
+
+.main-frame {
+    height: 450px;
+    background: linear-gradient(180deg, #000, #0d0d15);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid var(--border-dim);
+    position: relative;
+}
+
+.main-frame img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
+}
+
+.thumb-row {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 10px 5px;
+}
+
+.thumb {
+    width: 75px;
+    height: 75px;
+    border: 2px solid var(--border-dim);
+    border-radius: 10px;
+    cursor: pointer;
+    object-fit: cover;
+    transition: var(--fast);
+    background: #000;
+    flex-shrink: 0;
+}
+
+.thumb:hover, .thumb.active {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 12px var(--neon-cyan-glow);
+    transform: scale(1.05);
+}
+
+.detail-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.neon-price {
+    font-size: 2.8rem;
+    color: var(--neon-green);
+    font-weight: 950;
+    margin: 15px 0;
+    text-shadow: 0 0 15px var(--neon-green-glow);
+    letter-spacing: -1px;
+}
+
+.spec-list {
+    list-style: none;
+    margin-top: 25px;
+    border-top: 1px solid var(--border-bright);
+    padding-top: 20px;
+}
+
+.spec-list li {
+    margin-bottom: 12px;
+    color: var(--text-muted);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.spec-list li::before {
+    content: "⚡";
+    color: var(--neon-cyan);
+    font-size: 0.9rem;
+}
+
+.dealer-tag {
+    margin-top: 40px;
+    padding: 15px 20px;
+    background: rgba(0, 240, 255, 0.05);
+    border: 1px solid var(--neon-cyan);
+    border-radius: 8px;
+    font-weight: bold;
+    color: var(--neon-cyan);
+    font-size: 0.9rem;
+    display: inline-block;
+}
+
+/* ------------------------------------------------------------
+   10. FORMS, PILLS & PIN GATE
+   ------------------------------------------------------------ */
+.variant-inputs { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.variant-inputs input { flex: 1; min-width: 80px; }
+
+.pills-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.variant-pill {
+    background: rgba(188, 0, 255, 0.1);
+    border: 1px solid var(--neon-purple);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: var(--neon-purple);
+    cursor: pointer;
+}
+
+.pin-modal { max-width: 420px; text-align: center; padding: 40px; }
+
+.pin-field {
+    background: #000;
+    border: 2px solid var(--neon-purple);
+    color: #fff;
+    text-align: center;
+    font-size: 2.5rem;
+    letter-spacing: 20px;
+    width: 100%;
+    padding: 20px;
+    border-radius: 12px;
+    outline: none;
+    margin-top: 20px;
+}
+
+/* ------------------------------------------------------------
+   11. COMPARISON MATRIX TABLE
+   ------------------------------------------------------------ */
+.matrix-container {
+    overflow-x: auto;
+    margin-top: 25px;
+    border-radius: 12px;
+    border: 1px solid var(--border-bright);
+}
+
+.matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1100px;
+    background: #000;
+}
+
+.matrix-table th, .matrix-table td {
+    padding: 20px;
+    border: 1px solid var(--border-dim);
+    text-align: left;
+    vertical-align: top;
+}
+
+.matrix-table th {
+    background: var(--bg-dark);
+    color: var(--neon-cyan);
+    font-weight: 900;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.matrix-table tr:nth-child(even) { background: #08080c; }
+
+/* ------------------------------------------------------------
+   12. FOOTER (COPYRIGHT JIGAR)
+   ------------------------------------------------------------ */
+.neon-footer {
+    margin-top: 100px;
+    padding: 60px 20px;
+    background: var(--bg-dark);
+    text-align: center;
+    border-top: 1px solid var(--border-dim);
+}
+
+.neon-footer p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; }
+
+.credit-text {
+    font-size: 1.1rem !important;
+    font-weight: 900;
+    color: var(--text-main) !important;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.credit-text span {
+    color: var(--neon-cyan);
+    text-shadow: 0 0 15px var(--neon-cyan);
+}
+
+/* ------------------------------------------------------------
+   13. MEDIA QUERIES (RESPONSIVENESS)
+   ------------------------------------------------------------ */
+@media (max-width: 1024px) {
+    .detail-grid { gap: 30px; }
+    .main-frame { height: 350px; }
+}
+
+@media (max-width: 768px) {
+    .container { padding: 15px; }
+    .neon-nav { padding: 12px 18px; }
+    .nav-title { font-size: 0.95rem; }
+    
+    .detail-grid { grid-template-columns: 1fr; gap: 40px; }
+    .main-frame { height: 320px; }
+    
+    .admin-item { flex-direction: column; text-align: center; gap: 15px; }
+    .admin-btns { width: 100%; justify-content: center; }
+    
+    .grid-2 { grid-template-columns: 1fr; }
+    .modal { padding: 20px; }
+    
+    .neon-price { font-size: 2.2rem; }
+    .matrix-table th, .matrix-table td { padding: 12px; font-size: 0.85rem; }
+}
+
+@media (max-width: 480px) {
+    .neon-grid { grid-template-columns: 1fr; }
+    .nav-actions button span { display: none; }
+    .brand-box { gap: 8px; }
+}
