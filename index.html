@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Keval Mobile Zone | Premium Neon</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Keval Mobile Zone | Premium Portal</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -19,7 +19,7 @@
     </div>
     <div class="nav-actions">
       <button id="btnInstall" class="btn-neon-green hidden">📥 INSTALL</button>
-      <button id="btnAdminToggle" class="btn-neon-icon">⚙️ ADMIN</button>
+      <button id="btnAdminToggle" class="btn-neon-icon">⚙️ ADMIN PANEL</button>
     </div>
   </header>
 
@@ -31,41 +31,32 @@
         <select id="userFilterBrand" class="neon-select"><option value="">ALL BRANDS</option></select>
       </div>
     </div>
-
     <div id="productGrid" class="neon-grid"></div>
-
-    <div id="compareDock" class="compare-dock hidden">
-      <div class="dock-header">
-        <span>COMPARE DECK (<span id="compCount">0</span>/5)</span>
-        <button id="btnCompClear" class="btn-red-mini">✕</button>
-      </div>
-      <div id="dockItems" class="dock-items"></div>
-      <button id="btnOpenMatrix" class="btn-neon-purple full-w">📊 COMPARE PRODUCTS</button>
-    </div>
   </main>
 
   <main id="adminView" class="container hidden">
     <div class="admin-top">
-      <h2>ADMIN CONSOLE</h2>
+      <h2>CONTROL CENTER</h2>
       <div class="admin-btns">
-        <button id="btnAudioToggle" class="btn-neon-purple">🔊 SOUND: ON</button>
-        <button id="btnExportPanel" class="btn-neon-green">💾 PDF/JSON</button>
-        <button id="btnPinSetup" class="btn-neon-yellow">🔑 PIN SETUP</button>
+        <button id="btnAudioToggle" class="btn-neon-purple">🔊 AUDIO: ON</button>
+        <button id="btnExportPanel" class="btn-neon-green">💾 EXPORT</button>
+        <button id="btnPinSetup" class="btn-neon-yellow">🔑 PIN</button>
         <button id="btnCreateEntry" class="btn-neon-cyan">+ NEW ITEM</button>
       </div>
     </div>
-
-    <input type="text" id="adminSearch" placeholder="Filter inventory..." class="neon-input mt-20">
+    <input type="text" id="adminSearch" placeholder="Search inventory to edit..." class="neon-input mt-20">
     <div id="adminList" class="admin-list-container"></div>
   </main>
 
+  <footer class="neon-footer">
+    <p>© 2026 Keval Mobile Zone Padra. All Rights Reserved.</p>
+    <p class="credit-text">Designed & Developed by <span>Jigar</span></p>
+  </footer>
+
   <div id="entryModal" class="overlay hidden">
     <div class="modal neon-border-cyan">
-      <div class="modal-head">
-        <h3 id="modalTitle">CREATE ENTRY</h3>
-        <button class="close-btn" onclick="toggleModal('entryModal', false)">✕</button>
-      </div>
-      <form id="productForm" class="neon-form">
+      <div class="modal-head"><h3>PRODUCT DATA</h3><button onclick="toggleModal('entryModal', false)">✕</button></div>
+      <form id="productForm">
         <input type="hidden" id="editId">
         <div class="grid-2">
           <select id="pCat" class="neon-select" required>
@@ -78,8 +69,8 @@
           <select id="pBrand" class="neon-select" required>
             <option value="VIVO">VIVO</option>
             <option value="OPPO">OPPO</option>
-            <option value="REALME">REALME</option>
             <option value="SAMSUNG">SAMSUNG</option>
+            <option value="REALME">REALME</option>
             <option value="POCO">POCO</option>
             <option value="REDMI MI">REDMI MI</option>
             <option value="TECNO">TECNO</option>
@@ -88,31 +79,28 @@
           </select>
         </div>
         <div class="grid-2">
-          <input type="text" id="pSeries" placeholder="Series" class="neon-input" required>
+          <input type="text" id="pSeries" placeholder="Series" class="neon-input">
           <input type="text" id="pModel" placeholder="Model Name" class="neon-input" required>
         </div>
-        <input type="text" id="pDealer" placeholder="Wholesale Dealer Name" class="neon-input" required>
-
-        <div class="field-box">
-          <div class="flex-between">
-            <label>COLOURS & PHOTOS</label>
-            <button type="button" onclick="addColorSlot()" class="btn-neon-purple-mini">+ ADD COLOR</button>
-          </div>
-          <div id="colorContainer" class="color-stack"></div>
+        <input type="text" id="pDealer" placeholder="Dealer Name" class="neon-input">
+        
+        <div class="section-box">
+          <div class="flex-between"><span>HD IMAGES</span><button type="button" onclick="addColorSlot()" class="btn-neon-purple-mini">+ COLOR</button></div>
+          <div id="colorContainer"></div>
         </div>
 
-        <div class="field-box">
-          <label>RAM/ROM, PRICE & STOCK</label>
+        <div class="section-box">
+          <span>VARIANTS / PRICE</span>
           <div class="variant-inputs">
-            <input type="text" id="vName" placeholder="Variant (e.g. 8/128)" class="neon-input">
-            <input type="number" id="vPrice" placeholder="Price ₹" class="neon-input">
+            <input type="text" id="vName" placeholder="RAM/ROM" class="neon-input">
+            <input type="number" id="vPrice" placeholder="₹" class="neon-input">
             <input type="number" id="vStock" placeholder="Stock" class="neon-input">
             <button type="button" onclick="addVariant()" class="btn-neon-cyan">ADD</button>
           </div>
-          <div id="variantPills" class="pills-box"></div>
+          <div id="variantPills"></div>
         </div>
 
-        <textarea id="pSpecs" placeholder="Paste specifications (one per line)..." class="neon-area" rows="4"></textarea>
+        <textarea id="pSpecs" placeholder="Paste Specifications..." class="neon-area" rows="3"></textarea>
         <button type="submit" class="btn-save-glow full-w">SAVE TO CLOUD</button>
       </form>
     </div>
@@ -120,34 +108,29 @@
 
   <div id="ledgerModal" class="overlay hidden">
     <div class="modal neon-border-purple">
-      <div class="modal-head"><h3>STOCK AUDIT</h3><button class="close-btn" onclick="toggleModal('ledgerModal', false)">✕</button></div>
-      <div class="ledger-add-box">
+      <div class="modal-head"><h3>AUDIT LEDGER</h3><button onclick="toggleModal('ledgerModal', false)">✕</button></div>
+      <div class="ledger-add">
         <select id="lVar" class="neon-select"></select>
-        <select id="lType" class="neon-select"><option value="PURCHASE">IN (Purchase)</option><option value="SALE">OUT (Sale)</option></select>
+        <select id="lType" class="neon-select"><option value="PURCHASE">STOCK IN</option><option value="SALE">STOCK OUT</option></select>
         <input type="number" id="lQty" placeholder="Qty" class="neon-input">
         <input type="text" id="lNote" placeholder="Note" class="neon-input">
         <button onclick="commitLedger()" class="btn-neon-green full-w">COMMIT</button>
       </div>
-      <div id="ledgerHistory" class="ledger-list"></div>
+      <div id="ledgerHistory"></div>
     </div>
   </div>
 
   <div id="detailModal" class="overlay hidden">
     <div class="modal detail-window neon-border-cyan">
-      <button class="close-btn detail-close" onclick="toggleModal('detailModal', false)">✕</button>
+      <button class="close-btn" onclick="toggleModal('detailModal', false)">✕</button>
       <div class="detail-grid">
-        <div class="detail-visuals">
-          <div class="main-frame"><img id="dMainImg" src=""></div>
-          <div id="dThumbs" class="thumb-row"></div>
-        </div>
+        <div class="detail-visuals"><div class="main-frame"><img id="dMainImg" src=""></div><div id="dThumbs"></div></div>
         <div class="detail-info">
           <h2 id="dTitle"></h2>
-          <div id="dCat" class="neon-text-cyan"></div>
           <div id="dPrice" class="neon-price"></div>
-          <div id="dVariants" class="pills-box"></div>
-          <div class="stock-status">WAREHOUSE STOCK: <span id="dStock"></span></div>
-          <ul id="dSpecs" class="spec-list"></ul>
-          <div class="dealer-info">DEALER: <span id="dDealer"></span></div>
+          <div id="dVariants"></div>
+          <div id="dSpecs" class="spec-list"></div>
+          <div class="dealer-tag">Dealer: <span id="dDealer"></span></div>
         </div>
       </div>
     </div>
@@ -155,12 +138,9 @@
 
   <div id="pinGate" class="overlay hidden">
     <div class="modal pin-modal">
-      <h3>🔒 SECURITY PIN</h3>
+      <h3>🔒 ADMIN PIN</h3>
       <input type="password" id="pinInput" maxlength="4" placeholder="••••" class="pin-field">
-      <div class="flex-gap mt-10">
-        <button onclick="toggleModal('pinGate', false)" class="btn-red full-w">BACK</button>
-        <button onclick="verifyPin()" class="btn-neon-green full-w">VERIFY</button>
-      </div>
+      <button onclick="verifyPin()" class="btn-neon-green full-w mt-20">VERIFY</button>
     </div>
   </div>
 
