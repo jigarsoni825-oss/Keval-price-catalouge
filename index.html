@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Keval Mobile Zone - Premium Portal</title>
+  <title>Keval Mobile Zone - Neon Hub</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -19,7 +19,7 @@
     </div>
     <div class="hud-controls">
       <button id="btnInstall" class="btn-install hidden">📥 INSTALL APP</button>
-      <button id="btnToggleView" class="btn-icon-admin" title="Admin Portal">⚙️ ADMIN</button>
+      <button id="btnToggleView" class="btn-icon-admin" title="Admin Portal">⚙️ ADMIN PANEL</button>
     </div>
   </header>
 
@@ -48,7 +48,7 @@
 
     <div id="compareDock" class="compare-dock hidden">
       <div class="compare-dock-header">
-        <span class="hud-label" style="color:#00f0ff;">PRODUCT COMPARISON DECK (<span id="compareCount">0</span>/5)</span>
+        <span class="hud-label" style="color: var(--hud-neon-cyan);">PRODUCT COMPARISON DECK (<span id="compareCount">0</span>/5)</span>
         <button id="btnClearCompare" class="btn-delete small-btn">✕ CLEAR</button>
       </div>
       <div id="compareDockItems" class="compare-dock-items"></div>
@@ -60,25 +60,26 @@
     <div class="hud-admin-header">
       <h2>ADMIN CONTROL CONSOLE</h2>
       <div class="admin-header-actions">
-        <button id="btnOpenExportPanel" class="btn-action small-btn" style="background:#00e676;">💾 EXPORT DATA / PDF</button>
-        <button id="btnOpenPinConfig" class="btn-action small-btn" style="background:#ffb300;">🔑 PIN SETUP</button>
+        <button id="btnToggleAudioConfig" class="btn-action small-btn" style="background: var(--hud-neon-purple); color:#fff;">🔊 AUDIO: ON</button>
+        <button id="btnOpenExportPanel" class="btn-action small-btn" style="background: var(--hud-neon-green); color:#000;">💾 EXPORT DATA / PDF</button>
+        <button id="btnOpenPinConfig" class="btn-action small-btn" style="background: #ffb300; color:#000;">🔑 PIN SETUP</button>
         <button id="btnOpenPopup" class="btn-action pulse-glow">+ CREATE NEW ENTRY</button>
       </div>
     </div>
 
     <div class="asset-config-deck full-width" style="margin-bottom: 24px;">
-      <h4 style="color: var(--hud-cyan); margin-bottom: 12px;">APP BRANDING & BACKGROUND SETUP</h4>
+      <h4 style="color: var(--hud-neon-cyan); margin-bottom: 12px;">APP BRANDING & BACKGROUND SETUP</h4>
       <div class="form-row">
         <div class="form-group">
           <label class="hud-label">CUSTOM APP LOGO (DRIVE LINK)</label>
-          <div style="display:flex; gap:10px;">
+          <div class="flex-row-gap">
             <input type="text" id="driveLogoLink" placeholder="https://drive.google.com/file/d/.../view" class="hud-input">
             <button id="btnSaveLogo" class="btn-action small-btn" style="white-space:nowrap;">SAVE LOGO</button>
           </div>
         </div>
         <div class="form-group">
-          <label class="hud-label" style="color: #00e676;">UPLOAD APP BACKGROUND (LOCAL FILE)</label>
-          <div style="display:flex; gap:10px; align-items:center;">
+          <label class="hud-label" style="color: var(--hud-neon-green);">UPLOAD APP BACKGROUND (LOCAL FILE)</label>
+          <div class="flex-row-gap">
             <input type="file" id="appBgFileInput" accept="image/*" class="hud-file-input" style="padding: 8px;">
             <button id="btnResetBg" class="btn-delete small-btn" style="white-space:nowrap;">RESET BG</button>
           </div>
@@ -146,9 +147,9 @@
         </div>
 
         <div class="form-group full-width">
-          <label class="hud-label">DEALER CODE (SECURELY MASKED TO USERS)</label>
-          <input type="text" id="pDist" class="hud-input" required placeholder="ENTER WHOLESALE DEALER CODE">
-          <span style="font-size:0.7rem; color:var(--hud-text-muted);">Users will see this visually masked for profit safety.</span>
+          <label class="hud-label">WHOLESALE DEALER NAME / ASSIGNMENT</label>
+          <input type="text" id="pDist" class="hud-input" required placeholder="ENTER WHOLESALE DEALER NAME OR CODE">
+          <span style="font-size:0.7rem; color: var(--hud-text-muted);">Directly displayed in app catalog exactly as typed.</span>
         </div>
         
         <div class="form-group full-width hud-image-uploader">
@@ -179,7 +180,7 @@
             <input type="text" id="customVariant" placeholder="ENTER CUSTOM SIZE (e.g. 55 Inch, 250 Ltr)" class="hud-input hidden custom-var-input">
             <input type="number" id="variantPrice" placeholder="SET PRICE (₹)" class="hud-input price-input">
             <input type="number" id="variantStock" placeholder="INIT STOCK" value="10" class="hud-input stock-input">
-            <button type="button" id="btnAddVariant" class="btn-action small-btn">ADD VARIANT</button>
+            <button type="button" id="btnAddVariant" class="btn-action small-btn" style="background: var(--hud-neon-purple); color:#fff;">ADD VARIANT</button>
           </div>
           <div id="variantPillsContainer" class="pills-deck"></div>
         </div>
@@ -191,7 +192,7 @@
 
         <button id="btnSaveProductSubmit" type="submit" class="btn-save-animated full-width">
           <span class="save-text">PUBLISH LIVE TO ALL CONNECTED DEVICES</span>
-          <span class="save-spinner hidden">🔄 UPLOADING HD ASSETS...</span>
+          <span class="save-spinner hidden">🔄 UPLOADING NEON ASSETS...</span>
         </button>
       </form>
     </div>
@@ -200,9 +201,9 @@
   <div id="pinModal" class="modal-overlay hidden" style="z-index: 2000;">
     <div class="modal-window pin-window" style="max-width: 400px; text-align: center;">
       <h3 class="modal-title" style="margin-bottom:15px;">🔒 SECURE ADMIN ACCESS</h3>
-      <p style="font-size:0.85rem; color:var(--hud-text-muted); margin-bottom:20px;">Enter your 4-digit security PIN to proceed.</p>
+      <p style="font-size:0.85rem; color: var(--hud-text-muted); margin-bottom:20px;">Enter your 4-digit security PIN to proceed.</p>
       <input type="password" id="adminPinInput" maxlength="4" placeholder="••••" class="hud-input pin-input" style="text-align:center; font-size:2rem; letter-spacing:15px;">
-      <div style="display:flex; gap:10px; margin-top:20px;">
+      <div class="flex-row-gap" style="margin-top:20px;">
         <button id="btnCancelPin" class="btn-delete full-width">CANCEL</button>
         <button id="btnVerifyPin" class="btn-submit full-width">VERIFY</button>
       </div>
@@ -223,7 +224,7 @@
         <label class="hud-label">ENABLE PIN PROTECTION</label>
         <select id="pinToggleStatus" class="hud-select">
           <option value="ENABLED">ENABLED (PIN REQUIRED)</option>
-          <option value="DISABLED">DISABLED (OPEN ACCESS)</option>
+          <option value="DISABLED">DISABLED (DEFAULT: OPEN ACCESS)</option>
         </select>
       </div>
       <button id="btnSavePinConfig" class="btn-submit full-width" style="margin-top:20px;">SAVE SECURITY SETTINGS</button>
@@ -237,8 +238,8 @@
         <button id="btnCloseLedger" class="btn-close-modal">✕</button>
       </div>
       
-      <div class="ledger-entry-deck full-width" style="background:rgba(0,240,255,0.05); padding:15px; border-radius:8px; border:1px dashed var(--hud-cyan); margin-bottom:20px;">
-        <h4 style="color:var(--hud-cyan); margin-bottom:10px; font-size:0.9rem;">RECORD TRANSACTION</h4>
+      <div class="ledger-entry-deck full-width" style="background: rgba(0, 240, 255, 0.05); padding:15px; border-radius:8px; border:1px dashed var(--hud-neon-cyan); margin-bottom:20px;">
+        <h4 style="color: var(--hud-neon-cyan); margin-bottom:10px; font-size:0.9rem;">RECORD TRANSACTION</h4>
         <div class="form-row">
           <div class="form-group">
             <label class="hud-label">VARIANT SLOT</label>
@@ -278,7 +279,7 @@
         <h3 class="modal-title">💾 OPTIMIZED DATA DOWNLOADER</h3>
         <button id="btnCloseExport" class="btn-close-modal">✕</button>
       </div>
-      <p style="font-size:0.85rem; color:var(--hud-text-muted); margin-bottom:20px;">
+      <p style="font-size:0.85rem; color: var(--hud-text-muted); margin-bottom:20px;">
         Download inventory files optimized without heavy HD image payloads. Choose layout format below.
       </p>
       
@@ -312,14 +313,14 @@
         <div class="shopping-visuals">
           <div class="detail-main-frame" id="detailImgViewerBox" style="cursor:zoom-in;" title="Click to view full screen HD visual">
             <img id="detailMainImg" src="" alt="Main Display">
-            <div style="position:absolute; bottom:10px; right:10px; background:rgba(0,240,255,0.2); padding:4px 8px; font-size:0.7rem; border-radius:4px; border:1px solid var(--hud-cyan);">🔍 Click to open HD preview</div>
+            <div style="position:absolute; bottom:10px; right:10px; background: rgba(0, 240, 255, 0.2); padding:4px 8px; font-size:0.7rem; border-radius:4px; border:1px solid var(--hud-neon-cyan);">🔍 Click to open HD preview</div>
           </div>
           <div id="detailThumbnails" class="detail-thumbnails-deck"></div>
         </div>
         
         <div class="shopping-information">
           <h2 id="detailTitle" class="shopping-title"></h2>
-          <div id="detailCategoryBadge" style="color:var(--hud-cyan); font-weight:bold; font-size:0.85rem; margin-top:4px;"></div>
+          <div id="detailCategoryBadge" style="color: var(--hud-neon-cyan); font-weight:bold; font-size:0.85rem; margin-top:4px;"></div>
           
           <div id="detailPriceDisplay" class="price-live-box" style="font-size: 2.2rem;"></div>
           
@@ -335,11 +336,8 @@
           <label class="hud-label">DEEP PARSED SPECIFICATIONS</label>
           <ul id="detailSpecsList" class="spec-lines-deck" style="margin-top: 8px; border-top:1px solid var(--hud-border); padding-top: 10px;"></ul>
           
-          <div class="meta-footer flex-row-between" style="margin-top: 30px; align-items:center;">
-            <div>
-              WHOLESALE DEALER TIER: <span id="detailDistCode" style="color:var(--hud-cyan); letter-spacing:2px; font-weight:bold;">••••••</span>
-            </div>
-            <button id="btnRevealDealerCode" class="btn-toggle-view small-btn" style="padding:4px 8px; font-size:0.7rem;">🔒 AUTH REVEAL</button>
+          <div class="meta-footer" style="margin-top: 30px; text-align: left; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 6px; border: 1px solid var(--hud-border);">
+            ASSIGNED WHOLESALE DEALER: <span id="detailDistCode" style="color: var(--hud-neon-cyan); font-weight:bold; font-size: 0.9rem;"></span>
           </div>
         </div>
       </div>
@@ -356,12 +354,11 @@
     </div>
   </div>
 
-  <div id="hdViewerModal" class="modal-overlay hidden" style="z-index: 3000; background:rgba(0,0,0,0.95);">
+  <div id="hdViewerModal" class="modal-overlay hidden" style="z-index: 3000; background: rgba(0,0,0,0.95);">
     <span id="btnCloseHdViewer" class="btn-close-modal" style="position:absolute; top:20px; right:30px; font-size:2.5rem; color:#fff; cursor:pointer;">✕</span>
-    <img id="hdViewerImg" src="" style="max-width:95%; max-height:90%; object-fit:contain; border:2px solid var(--hud-cyan); box-shadow:0 0 40px var(--hud-cyan-glow); border-radius:8px;">
+    <img id="hdViewerImg" src="" style="max-width:95%; max-height:90%; object-fit:contain; border:2px solid var(--hud-neon-cyan); box-shadow:0 0 40px var(--hud-neon-cyan-glow); border-radius:8px;">
   </div>
 
   <script src="app.js"></script>
 </body>
-  </html>
-  
+</html>
