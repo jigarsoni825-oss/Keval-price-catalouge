@@ -1,12 +1,78 @@
 {
-  "name": "Keval Mobile Zone",
+  "name": "Keval Mobile Zone | Premium Neon Portal",
   "short_name": "Keval Hub",
-  "start_url": ".",
+  "description": "Professional Mobile & Inventory Management Hub for Keval Mobile Zone Padra. Featuring real-time stock audit, comparison matrix, and HD showroom visuals.",
+  "id": "/keval-mobile-zone-v4/",
+  "start_url": "./index.html",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#050508",
   "theme_color": "#bc00ff",
+  "dir": "ltr",
+  "lang": "en-US",
+  "categories": [
+    "shopping",
+    "business",
+    "productivity"
+  ],
   "icons": [
-    {"src": "logo-192.png", "sizes": "192x192", "type": "image/png"},
-    {"src": "logo-512.png", "sizes": "512x512", "type": "image/png"}
-  ]
+    {
+      "src": "logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-mobile.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Neon Product Showroom View"
+    },
+    {
+      "src": "screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Admin Warehouse Console"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Open Admin Console",
+      "short_name": "Admin",
+      "description": "Quickly access inventory and stock ledger",
+      "url": "./index.html?view=admin",
+      "icons": [{ "src": "logo-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Compare Phones",
+      "short_name": "Compare",
+      "description": "Open comparison matrix",
+      "url": "./index.html?view=compare",
+      "icons": [{ "src": "logo-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
 }
