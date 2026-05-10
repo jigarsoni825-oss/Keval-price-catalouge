@@ -4,16 +4,13 @@
    Designed & Developed By: Jigar
    Location: Padra, Gujarat
    Project: Keval Mobile Zone Inventory & Showroom Portal
-   Version: 5.5 (Enterprise Build)
+   Version: 5.8 (Final Production Build)
    ============================================================ */
 
 /**
  * SECTION 1: CORE FIREBASE INFRASTRUCTURE
  * ------------------------------------------------------------
- * This section links your app to the Google Cloud Database.
- * These keys are your unique shop identifiers.
  */
-
 const firebaseConfig = {
   apiKey: "AIzaSyDcesyj1CJkNpkZVdFb2-k5pXwg-nW8uiQ",
   authDomain: "keval-mobile-zone.firebaseapp.com",
@@ -33,22 +30,20 @@ const db = firebase.database();
 /**
  * SECTION 2: CLOUDINARY HD ASSET CONFIGURATION
  * ------------------------------------------------------------
- * Handles the high-speed image delivery for the showroom.
  */
-// IMPORTANT: Paste your Cloud Name from your Cloudinary Dashboard here
-const CLOUD_NAME = "PASTE_YOUR_CLOUDINARY_NAME_HERE"; 
+const CLOUD_NAME = "dgpk8n8xv"; 
 const UPLOAD_PRESET = "keval_shop_preset"; 
 
 /**
  * SECTION 3: APPLICATION GLOBAL STATE
  * ------------------------------------------------------------
  */
-let allProductsBank = [];      // Full local copy of database
-let compareMatrixQueue = [];   // Selected items for comparison (Max 5)
-let currentVariantDrafts = []; // Temp storage for form
-let currentColorDrafts = [];   // Temp storage for HD images
-let isAdminMode = false;       // UI state toggle
-let activeLedgerItemID = null; // Reference for stock auditing
+let allProductsBank = [];      
+let compareMatrixQueue = [];   
+let currentVariantDrafts = []; 
+let currentColorDrafts = [];   
+let isAdminMode = false;       
+let activeLedgerItemID = null; 
 
 // Persistent User Settings (Saved in Browser Memory)
 let isAudioEnabled = localStorage.getItem('keval_audio') !== 'OFF';
@@ -135,17 +130,14 @@ function startLiveSync() {
             });
         }
         
-        // Dynamic Filter Logic
         populateFilterMenus();
         
-        // Refresh UI based on state
         if (isAdminMode) {
             renderAdminDashboard();
         } else {
             renderUserShowroom();
         }
         
-        // Update comparison dock count
         updateComparisonDockUI();
     });
 }
@@ -271,11 +263,9 @@ function triggerStockLedger(id) {
     const p = allProductsBank.find(x => x.id === id);
     if (!p) return;
 
-    // Build Variant Selector
     const vSel = document.getElementById('lVar');
     vSel.innerHTML = p.variants.map((v, i) => `<option value="${i}">${v.name} (Now: ${v.stock})</option>`).join('');
 
-    // Reset Form
     document.getElementById('lQty').value = 1;
     document.getElementById('lNote').value = '';
 
@@ -292,7 +282,6 @@ function renderLedgerHistory(product) {
         return;
     }
 
-    // Newest Records First
     [...product.ledger].reverse().forEach((entry, idx) => {
         const originalIndex = product.ledger.length - 1 - idx;
         const row = document.createElement('div');
@@ -326,14 +315,12 @@ async function commitLedger() {
         return;
     }
 
-    // Mathematical Stock Adjustment
     if (type === 'SALE') {
         p.variants[varIndex].stock -= quantity;
     } else {
         p.variants[varIndex].stock += quantity;
     }
 
-    // Create Audit Log
     const logEntry = {
         type,
         variant: p.variants[varIndex].name,
@@ -347,7 +334,7 @@ async function commitLedger() {
 
     await db.ref('products/' + activeLedgerItemID).set(p);
     playInterfaceSound('success');
-    triggerStockLedger(activeLedgerItemID); // Refresh UI
+    triggerStockLedger(activeLedgerItemID);
 }
 
 async function undoLedgerTransaction(prodId, ledgerIdx) {
@@ -356,17 +343,15 @@ async function undoLedgerTransaction(prodId, ledgerIdx) {
     const p = allProductsBank.find(x => x.id === prodId);
     const entryToUndo = p.ledger[ledgerIdx];
 
-    // Identify variant and reverse the math
     const targetVarIdx = p.variants.findIndex(v => v.name === entryToUndo.variant);
     if (targetVarIdx > -1) {
         if (entryToUndo.type === 'SALE') {
-            p.variants[targetVarIdx].stock += entryToUndo.qty; // Return sold stock
+            p.variants[targetVarIdx].stock += entryToUndo.qty; 
         } else {
-            p.variants[targetVarIdx].stock -= entryToUndo.qty; // Remove purchased stock
+            p.variants[targetVarIdx].stock -= entryToUndo.qty; 
         }
     }
 
-    // Remove the row from ledger array
     p.ledger.splice(ledgerIdx, 1);
 
     await db.ref('products/' + prodId).set(p);
@@ -410,7 +395,6 @@ function addVariant() {
 
     currentVariantDrafts.push({ name: label, price: cost, stock: count });
     
-    // Clear mini-inputs
     document.getElementById('vName').value = '';
     document.getElementById('vPrice').value = '';
     document.getElementById('vStock').value = '0';
@@ -419,7 +403,6 @@ function addVariant() {
 }
 
 function refreshFormDrafts() {
-    // Render Variants
     const vCont = document.getElementById('variantPills');
     vCont.innerHTML = currentVariantDrafts.map((v, i) => `
         <div class="variant-pill" onclick="currentVariantDrafts.splice(${i},1); refreshFormDrafts();">
@@ -427,7 +410,6 @@ function refreshFormDrafts() {
         </div>
     `).join('');
 
-    // Render Color Slots
     const cCont = document.getElementById('colorContainer');
     cCont.innerHTML = currentColorDrafts.map((c, i) => `
         <div class="admin-item" style="padding:8px; margin-top:8px; border:1px solid var(--border-bright);">
@@ -558,7 +540,6 @@ function runComparisonMatrix() {
 
     let matrixHtml = '<table class="matrix-table">';
     
-    // Header (Model Visuals)
     matrixHtml += '<thead><tr><th>SPEC METRIC</th>';
     selectedItems.forEach(p => {
         const icon = p.colors?.[0]?.url || '';
@@ -566,7 +547,6 @@ function runComparisonMatrix() {
     });
     matrixHtml += '</tr></thead><tbody>';
 
-    // Metrics Rows
     const metrics = [
         { label: 'BRAND', key: 'brand' },
         { label: 'SERIES', key: 'series' },
@@ -602,7 +582,6 @@ function openProductDetailView(id) {
     document.getElementById('dCat').innerText = p.category.toUpperCase();
     document.getElementById('dDealer').innerText = p.dealer.toUpperCase();
 
-    // Visual Frame
     const mainImg = document.getElementById('dMainImg');
     const thumbArea = document.getElementById('dThumbs');
     mainImg.src = p.colors?.[0]?.url || '';
@@ -612,7 +591,6 @@ function openProductDetailView(id) {
              onclick="swapShowroomImage(this, '${c.url}')">
     `).join('');
 
-    // Pricing & Variants
     const vArea = document.getElementById('dVariants');
     const pArea = document.getElementById('dPrice');
     const sArea = document.getElementById('dStock');
@@ -628,7 +606,6 @@ function openProductDetailView(id) {
         </button>
     `).join('');
 
-    // Specs List
     const specArea = document.getElementById('dSpecs');
     specArea.innerHTML = (p.specs || []).map(s => `<div style="margin-bottom:8px;">⚡ ${s}</div>`).join('');
 
@@ -666,7 +643,6 @@ function performPermanentDelete(id, name) {
     }
 }
 
-// PIN Verification Logic
 function executePinVerification() {
     const entered = document.getElementById('pinInput').value;
     if (entered === masterAdminPin) {
@@ -705,7 +681,6 @@ function enterAdminUI() {
     renderAdminDashboard();
 }
 
-// Global Event Listeners
 document.getElementById('userSearch').oninput = renderUserShowroom;
 document.getElementById('userFilterCat').onchange = renderUserShowroom;
 document.getElementById('userFilterBrand').onchange = renderUserShowroom;
@@ -752,9 +727,5 @@ document.getElementById('btnExportPanel').onclick = () => {
     html2pdf().set(opt).from(list).save();
 };
 
-/**
- * START ENGINE
- * ------------------------------------------------------------
- */
 startLiveSync();
 console.log("KEVAL MOBILE ZONE: MASTER ENGINE ONLINE.");
