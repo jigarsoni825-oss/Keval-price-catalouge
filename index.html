@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Keval Mobile Zone - Neon Hub</title>
+  <title>Keval Mobile Zone | Premium Neon</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -12,351 +12,156 @@
 </head>
 <body>
 
-  <header class="hud-top-bar">
-    <div class="hud-brand-container">
-      <div class="hud-status-indicator"></div>
-      <h1 class="hud-title">KEVAL MOBILE ZONE</h1>
+  <header class="neon-nav">
+    <div class="brand-box">
+      <div class="status-dot"></div>
+      <h1 class="nav-title">KEVAL MOBILE ZONE</h1>
     </div>
-    <div class="hud-controls">
-      <button id="btnInstall" class="btn-install hidden">📥 INSTALL APP</button>
-      <button id="btnToggleView" class="btn-icon-admin" title="Admin Portal">⚙️ ADMIN PANEL</button>
+    <div class="nav-actions">
+      <button id="btnInstall" class="btn-neon-green hidden">📥 INSTALL</button>
+      <button id="btnAdminToggle" class="btn-neon-icon">⚙️ ADMIN</button>
     </div>
   </header>
 
-  <main id="userView" class="app-container">
-    <section class="hud-filter-deck">
-      <div class="search-wrapper full-width">
-        <input type="text" id="searchUser" placeholder="SEARCH CATEGORY, BRAND, MODEL, OR SPECS..." class="hud-input search-input">
+  <main id="userView" class="container">
+    <div class="filter-bar">
+      <input type="text" id="userSearch" placeholder="Search Brand, Model, or Features..." class="neon-input">
+      <div class="filter-group">
+        <select id="userFilterCat" class="neon-select"><option value="">ALL CATEGORIES</option></select>
+        <select id="userFilterBrand" class="neon-select"><option value="">ALL BRANDS</option></select>
       </div>
-      <div class="hud-sorting-row">
-        <div class="select-box">
-          <label class="hud-label">FILTER CATEGORY</label>
-          <select id="sortCategory" class="hud-select">
-            <option value="">ALL CATEGORIES</option>
-          </select>
-        </div>
-        <div class="select-box">
-          <label class="hud-label">FILTER BRAND</label>
-          <select id="sortBrand" class="hud-select">
-            <option value="">ALL BRANDS</option>
-          </select>
-        </div>
-      </div>
-    </section>
+    </div>
 
-    <section id="productGrid" class="hud-grid"></section>
+    <div id="productGrid" class="neon-grid"></div>
 
     <div id="compareDock" class="compare-dock hidden">
-      <div class="compare-dock-header">
-        <span class="hud-label" style="color: var(--hud-neon-cyan);">PRODUCT COMPARISON DECK (<span id="compareCount">0</span>/5)</span>
-        <button id="btnClearCompare" class="btn-delete small-btn">✕ CLEAR</button>
+      <div class="dock-header">
+        <span>COMPARE DECK (<span id="compCount">0</span>/5)</span>
+        <button id="btnCompClear" class="btn-red-mini">✕</button>
       </div>
-      <div id="compareDockItems" class="compare-dock-items"></div>
-      <button id="btnRunCompare" class="btn-submit full-width" style="padding: 10px; margin-top: 10px;">📊 EXECUTE MATRIX COMPARISON</button>
+      <div id="dockItems" class="dock-items"></div>
+      <button id="btnOpenMatrix" class="btn-neon-purple full-w">📊 COMPARE PRODUCTS</button>
     </div>
   </main>
 
-  <main id="adminView" class="app-container hidden">
-    <div class="hud-admin-header">
-      <h2>ADMIN CONTROL CONSOLE</h2>
-      <div class="admin-header-actions">
-        <button id="btnToggleAudioConfig" class="btn-action small-btn" style="background: var(--hud-neon-purple); color:#fff;">🔊 AUDIO: ON</button>
-        <button id="btnOpenExportPanel" class="btn-action small-btn" style="background: var(--hud-neon-green); color:#000;">💾 EXPORT DATA / PDF</button>
-        <button id="btnOpenPinConfig" class="btn-action small-btn" style="background: #ffb300; color:#000;">🔑 PIN SETUP</button>
-        <button id="btnOpenPopup" class="btn-action pulse-glow">+ CREATE NEW ENTRY</button>
+  <main id="adminView" class="container hidden">
+    <div class="admin-top">
+      <h2>ADMIN CONSOLE</h2>
+      <div class="admin-btns">
+        <button id="btnAudioToggle" class="btn-neon-purple">🔊 SOUND: ON</button>
+        <button id="btnExportPanel" class="btn-neon-green">💾 PDF/JSON</button>
+        <button id="btnPinSetup" class="btn-neon-yellow">🔑 PIN SETUP</button>
+        <button id="btnCreateEntry" class="btn-neon-cyan">+ NEW ITEM</button>
       </div>
     </div>
 
-    <div class="asset-config-deck full-width" style="margin-bottom: 24px;">
-      <h4 style="color: var(--hud-neon-cyan); margin-bottom: 12px;">APP BRANDING & BACKGROUND SETUP</h4>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="hud-label">CUSTOM APP LOGO (DRIVE LINK)</label>
-          <div class="flex-row-gap">
-            <input type="text" id="driveLogoLink" placeholder="https://drive.google.com/file/d/.../view" class="hud-input">
-            <button id="btnSaveLogo" class="btn-action small-btn" style="white-space:nowrap;">SAVE LOGO</button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="hud-label" style="color: var(--hud-neon-green);">UPLOAD APP BACKGROUND (LOCAL FILE)</label>
-          <div class="flex-row-gap">
-            <input type="file" id="appBgFileInput" accept="image/*" class="hud-file-input" style="padding: 8px;">
-            <button id="btnResetBg" class="btn-delete small-btn" style="white-space:nowrap;">RESET BG</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="search-wrapper full-width" style="margin-bottom: 20px;">
-      <input type="text" id="searchAdmin" placeholder="SEARCH DATABASE TO UPDATE LEDGER, PRICES, OR DELETE..." class="hud-input search-input">
-    </div>
-    <div id="adminProductList" class="hud-table-deck"></div>
+    <input type="text" id="adminSearch" placeholder="Filter inventory..." class="neon-input mt-20">
+    <div id="adminList" class="admin-list-container"></div>
   </main>
 
-  <div id="entryPopup" class="modal-overlay hidden">
-    <div class="modal-window">
-      <div class="modal-top-bar">
-        <h3 id="modalTitle" class="modal-title">CREATE DATABASE ENTRY</h3>
-        <button id="btnClosePopup" class="btn-close-modal">✕</button>
+  <div id="entryModal" class="overlay hidden">
+    <div class="modal neon-border-cyan">
+      <div class="modal-head">
+        <h3 id="modalTitle">CREATE ENTRY</h3>
+        <button class="close-btn" onclick="toggleModal('entryModal', false)">✕</button>
       </div>
-      
-      <form id="productForm" class="hud-form">
-        <input type="hidden" id="editProductId">
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label class="hud-label">PRODUCT CATEGORY</label>
-            <select id="pCategory" class="hud-select" required>
-              <option value="">SELECT CATEGORY</option>
-              <option value="MOBILE 📱">MOBILE 📱</option>
-              <option value="TV 📺">TV 📺</option>
-              <option value="FRIDGE ❄️">FRIDGE ❄️</option>
-              <option value="HOME THEATRE 🔊">HOME THEATRE 🔊</option>
-              <option value="OTHER">OTHER (MANUAL ENTRY)</option>
-            </select>
-            <input type="text" id="pCategoryCustom" placeholder="ENTER CUSTOM CATEGORY" class="hud-input hidden mt-2">
-          </div>
+      <form id="productForm" class="neon-form">
+        <input type="hidden" id="editId">
+        <div class="grid-2">
+          <select id="pCat" class="neon-select" required>
+            <option value="MOBILE 📱">MOBILE 📱</option>
+            <option value="TV 📺">TV 📺</option>
+            <option value="FRIDGE ❄️">FRIDGE ❄️</option>
+            <option value="HOME THEATRE 🔊">HOME THEATRE 🔊</option>
+            <option value="OTHER">OTHER</option>
+          </select>
+          <select id="pBrand" class="neon-select" required>
+            <option value="VIVO">VIVO</option>
+            <option value="OPPO">OPPO</option>
+            <option value="REALME">REALME</option>
+            <option value="SAMSUNG">SAMSUNG</option>
+            <option value="POCO">POCO</option>
+            <option value="REDMI MI">REDMI MI</option>
+            <option value="TECNO">TECNO</option>
+            <option value="1+ ONEPLUS">1+ ONEPLUS</option>
+            <option value="OTHER">OTHER</option>
+          </select>
+        </div>
+        <div class="grid-2">
+          <input type="text" id="pSeries" placeholder="Series" class="neon-input" required>
+          <input type="text" id="pModel" placeholder="Model Name" class="neon-input" required>
+        </div>
+        <input type="text" id="pDealer" placeholder="Wholesale Dealer Name" class="neon-input" required>
 
-          <div class="form-group">
-            <label class="hud-label">PRESET BRAND NAME</label>
-            <select id="pBrand" class="hud-select" required>
-              <option value="">SELECT BRAND</option>
-              <option value="VIVO">VIVO</option>
-              <option value="OPPO">OPPO</option>
-              <option value="REALME">REALME</option>
-              <option value="SAMSUNG">SAMSUNG</option>
-              <option value="POCO">POCO</option>
-              <option value="REDMI MI">REDMI MI</option>
-              <option value="TECNO">TECNO</option>
-              <option value="1+ ONEPLUS">1+ ONEPLUS</option>
-              <option value="OTHER">OTHER (MANUAL ENTRY)</option>
-            </select>
-            <input type="text" id="pBrandCustom" placeholder="ENTER CUSTOM BRAND" class="hud-input hidden mt-2">
+        <div class="field-box">
+          <div class="flex-between">
+            <label>COLOURS & PHOTOS</label>
+            <button type="button" onclick="addColorSlot()" class="btn-neon-purple-mini">+ ADD COLOR</button>
           </div>
+          <div id="colorContainer" class="color-stack"></div>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label class="hud-label">SERIES / SUB-BRAND</label>
-            <input type="text" id="pSeries" class="hud-input" required placeholder="ENTER SERIES">
+        <div class="field-box">
+          <label>RAM/ROM, PRICE & STOCK</label>
+          <div class="variant-inputs">
+            <input type="text" id="vName" placeholder="Variant (e.g. 8/128)" class="neon-input">
+            <input type="number" id="vPrice" placeholder="Price ₹" class="neon-input">
+            <input type="number" id="vStock" placeholder="Stock" class="neon-input">
+            <button type="button" onclick="addVariant()" class="btn-neon-cyan">ADD</button>
           </div>
-          <div class="form-group">
-            <label class="hud-label">MODEL NAME</label>
-            <input type="text" id="pModel" class="hud-input" required placeholder="ENTER MODEL">
-          </div>
+          <div id="variantPills" class="pills-box"></div>
         </div>
 
-        <div class="form-group full-width">
-          <label class="hud-label">WHOLESALE DEALER NAME / ASSIGNMENT</label>
-          <input type="text" id="pDist" class="hud-input" required placeholder="ENTER WHOLESALE DEALER NAME OR CODE">
-          <span style="font-size:0.7rem; color: var(--hud-text-muted);">Directly displayed in app catalog exactly as typed.</span>
-        </div>
-        
-        <div class="form-group full-width hud-image-uploader">
-          <div class="flex-row-between">
-            <label class="hud-label">UPLOAD HD PHOTOS BY COLOUR SCHEME</label>
-            <button type="button" id="btnAddColorSlot" class="btn-action small-btn">+ ADD COLOUR SLOT</button>
-          </div>
-          <div id="colorUploadsDeck" class="color-uploads-deck">
-            </div>
-        </div>
-
-        <div class="form-group full-width hud-variant-deck">
-          <label id="variantDeckLabel" class="hud-label">RAM / ROM (GB), PRICE & INITIAL STOCK CONFIGURATOR</label>
-          <div class="variant-controls">
-            <select id="variantSelect" class="hud-select variant-select">
-              <option value="2GB / 32GB">2GB / 32GB</option>
-              <option value="3GB / 32GB">3GB / 32GB</option>
-              <option value="3GB / 64GB">3GB / 64GB</option>
-              <option value="4GB / 64GB">4GB / 64GB</option>
-              <option value="4GB / 128GB">4GB / 128GB</option>
-              <option value="6GB / 128GB">6GB / 128GB</option>
-              <option value="8GB / 128GB">8GB / 128GB</option>
-              <option value="8GB / 256GB">8GB / 256GB</option>
-              <option value="12GB / 256GB">12GB / 256GB</option>
-              <option value="12GB / 512GB">12GB / 512GB</option>
-              <option value="OTHER">CUSTOM SPEC / TV SIZE / LTRS</option>
-            </select>
-            <input type="text" id="customVariant" placeholder="ENTER CUSTOM SIZE (e.g. 55 Inch, 250 Ltr)" class="hud-input hidden custom-var-input">
-            <input type="number" id="variantPrice" placeholder="SET PRICE (₹)" class="hud-input price-input">
-            <input type="number" id="variantStock" placeholder="INIT STOCK" value="10" class="hud-input stock-input">
-            <button type="button" id="btnAddVariant" class="btn-action small-btn" style="background: var(--hud-neon-purple); color:#fff;">ADD VARIANT</button>
-          </div>
-          <div id="variantPillsContainer" class="pills-deck"></div>
-        </div>
-
-        <div class="form-group full-width hud-specs-deck">
-          <label class="hud-label">SPECIFICATIONS (COPY-PASTE DIRECTLY FROM E-COMMERCE SITES)</label>
-          <textarea id="pSpecsArea" class="hud-input spec-area" rows="6" placeholder="Paste full specs text here. Automatic line break detection separates rows perfectly..."></textarea>
-        </div>
-
-        <button id="btnSaveProductSubmit" type="submit" class="btn-save-animated full-width">
-          <span class="save-text">PUBLISH LIVE TO ALL CONNECTED DEVICES</span>
-          <span class="save-spinner hidden">🔄 UPLOADING NEON ASSETS...</span>
-        </button>
+        <textarea id="pSpecs" placeholder="Paste specifications (one per line)..." class="neon-area" rows="4"></textarea>
+        <button type="submit" class="btn-save-glow full-w">SAVE TO CLOUD</button>
       </form>
     </div>
   </div>
 
-  <div id="pinModal" class="modal-overlay hidden" style="z-index: 2000;">
-    <div class="modal-window pin-window" style="max-width: 400px; text-align: center;">
-      <h3 class="modal-title" style="margin-bottom:15px;">🔒 SECURE ADMIN ACCESS</h3>
-      <p style="font-size:0.85rem; color: var(--hud-text-muted); margin-bottom:20px;">Enter your 4-digit security PIN to proceed.</p>
-      <input type="password" id="adminPinInput" maxlength="4" placeholder="••••" class="hud-input pin-input" style="text-align:center; font-size:2rem; letter-spacing:15px;">
-      <div class="flex-row-gap" style="margin-top:20px;">
-        <button id="btnCancelPin" class="btn-delete full-width">CANCEL</button>
-        <button id="btnVerifyPin" class="btn-submit full-width">VERIFY</button>
+  <div id="ledgerModal" class="overlay hidden">
+    <div class="modal neon-border-purple">
+      <div class="modal-head"><h3>STOCK AUDIT</h3><button class="close-btn" onclick="toggleModal('ledgerModal', false)">✕</button></div>
+      <div class="ledger-add-box">
+        <select id="lVar" class="neon-select"></select>
+        <select id="lType" class="neon-select"><option value="PURCHASE">IN (Purchase)</option><option value="SALE">OUT (Sale)</option></select>
+        <input type="number" id="lQty" placeholder="Qty" class="neon-input">
+        <input type="text" id="lNote" placeholder="Note" class="neon-input">
+        <button onclick="commitLedger()" class="btn-neon-green full-w">COMMIT</button>
       </div>
+      <div id="ledgerHistory" class="ledger-list"></div>
     </div>
   </div>
 
-  <div id="pinConfigModal" class="modal-overlay hidden" style="z-index: 2000;">
-    <div class="modal-window pin-window" style="max-width: 450px;">
-      <div class="modal-top-bar">
-        <h3 class="modal-title">🔑 PIN CONFIGURATION</h3>
-        <button id="btnClosePinConfig" class="btn-close-modal">✕</button>
-      </div>
-      <div class="form-group full-width">
-        <label class="hud-label">SET NEW 4-DIGIT PIN</label>
-        <input type="text" id="newAdminPin" maxlength="4" placeholder="e.g. 1234" class="hud-input">
-      </div>
-      <div class="form-group full-width" style="margin-top:15px;">
-        <label class="hud-label">ENABLE PIN PROTECTION</label>
-        <select id="pinToggleStatus" class="hud-select">
-          <option value="ENABLED">ENABLED (PIN REQUIRED)</option>
-          <option value="DISABLED">DISABLED (DEFAULT: OPEN ACCESS)</option>
-        </select>
-      </div>
-      <button id="btnSavePinConfig" class="btn-submit full-width" style="margin-top:20px;">SAVE SECURITY SETTINGS</button>
-    </div>
-  </div>
-
-  <div id="stockLedgerModal" class="modal-overlay hidden" style="z-index: 1500;">
-    <div class="modal-window ledger-window" style="max-width: 750px;">
-      <div class="modal-top-bar">
-        <h3 id="ledgerModalTitle" class="modal-title">📦 AUDIT LEDGER</h3>
-        <button id="btnCloseLedger" class="btn-close-modal">✕</button>
-      </div>
-      
-      <div class="ledger-entry-deck full-width" style="background: rgba(0, 240, 255, 0.05); padding:15px; border-radius:8px; border:1px dashed var(--hud-neon-cyan); margin-bottom:20px;">
-        <h4 style="color: var(--hud-neon-cyan); margin-bottom:10px; font-size:0.9rem;">RECORD TRANSACTION</h4>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="hud-label">VARIANT SLOT</label>
-            <select id="ledgerVariantSelect" class="hud-select"></select>
-          </div>
-          <div class="form-group">
-            <label class="hud-label">TRANSACTION TYPE</label>
-            <select id="ledgerTypeSelect" class="hud-select">
-              <option value="PURCHASE">📥 PURCHASE (ADD STOCK)</option>
-              <option value="SALE">📤 SALE (REDUCE STOCK)</option>
-            </select>
-          </div>
+  <div id="detailModal" class="overlay hidden">
+    <div class="modal detail-window neon-border-cyan">
+      <button class="close-btn detail-close" onclick="toggleModal('detailModal', false)">✕</button>
+      <div class="detail-grid">
+        <div class="detail-visuals">
+          <div class="main-frame"><img id="dMainImg" src=""></div>
+          <div id="dThumbs" class="thumb-row"></div>
         </div>
-        <div class="form-row" style="margin-top:10px;">
-          <div class="form-group">
-            <label class="hud-label">QUANTITY</label>
-            <input type="number" id="ledgerQty" placeholder="QTY" class="hud-input" min="1" value="1">
-          </div>
-          <div class="form-group">
-            <label class="hud-label">TRANSACTION NOTE / DATE</label>
-            <input type="text" id="ledgerNote" placeholder="e.g. Invoice #109, Walk-in Sale" class="hud-input">
-          </div>
-        </div>
-        <button id="btnCommitTransaction" class="btn-submit full-width" style="margin-top:15px; padding:10px;">COMMIT TO LEDGER</button>
-      </div>
-
-      <div class="form-group full-width">
-        <label class="hud-label">TRANSACTION LEDGER HISTORY</label>
-        <div id="ledgerHistoryContainer" class="ledger-history-rows" style="max-height: 250px; overflow-y: auto;"></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="exportDataModal" class="modal-overlay hidden" style="z-index: 1500;">
-    <div class="modal-window export-window" style="max-width: 600px;">
-      <div class="modal-top-bar">
-        <h3 class="modal-title">💾 OPTIMIZED DATA DOWNLOADER</h3>
-        <button id="btnCloseExport" class="btn-close-modal">✕</button>
-      </div>
-      <p style="font-size:0.85rem; color: var(--hud-text-muted); margin-bottom:20px;">
-        Download inventory files optimized without heavy HD image payloads. Choose layout format below.
-      </p>
-      
-      <div class="form-group full-width" style="margin-bottom:15px;">
-        <label class="hud-label">EXPORT SCOPE</label>
-        <select id="exportScope" class="hud-select">
-          <option value="ALL">ALL PRODUCTS IN SYSTEM</option>
-          <option value="FILTERED">CURRENT ACTIVE SEARCH/FILTER LIST</option>
-        </select>
-      </div>
-
-      <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px;">
-        <button id="btnExportJSON" class="btn-action full-width" style="padding:12px;">📥 DOWNLOAD COMPLETE DATABASE (.JSON)</button>
-        <button id="btnExportPDF" class="btn-submit full-width" style="padding:12px; background:linear-gradient(90deg, #00e676, #00b0ff);">📄 GENERATE FORMATTED INVENTORY REPORT (.PDF)</button>
-      </div>
-
-      <div id="pdfRenderCanvas" class="hidden" style="background:#fff; color:#000; padding:30px; width:800px;"></div>
-    </div>
-  </div>
-
-  <div id="shoppingDetailModal" class="modal-overlay hidden">
-    <div class="modal-window shopping-detail-window">
-      <div class="modal-top-bar">
-        <div class="hud-brand-container">
-          <span id="detailMetaBrand" class="meta-brand" style="font-size:1rem;"></span>
-        </div>
-        <button id="btnCloseDetail" class="btn-close-modal">✕</button>
-      </div>
-      
-      <div class="shopping-content-grid">
-        <div class="shopping-visuals">
-          <div class="detail-main-frame" id="detailImgViewerBox" style="cursor:zoom-in;" title="Click to view full screen HD visual">
-            <img id="detailMainImg" src="" alt="Main Display">
-            <div style="position:absolute; bottom:10px; right:10px; background: rgba(0, 240, 255, 0.2); padding:4px 8px; font-size:0.7rem; border-radius:4px; border:1px solid var(--hud-neon-cyan);">🔍 Click to open HD preview</div>
-          </div>
-          <div id="detailThumbnails" class="detail-thumbnails-deck"></div>
-        </div>
-        
-        <div class="shopping-information">
-          <h2 id="detailTitle" class="shopping-title"></h2>
-          <div id="detailCategoryBadge" style="color: var(--hud-neon-cyan); font-weight:bold; font-size:0.85rem; margin-top:4px;"></div>
-          
-          <div id="detailPriceDisplay" class="price-live-box" style="font-size: 2.2rem;"></div>
-          
-          <div class="form-group full-width" style="margin: 15px 0;">
-            <label class="hud-label">SELECT SPEC VARIANT CONFIGURATION</label>
-            <div id="detailVariantsDeck" class="pills-deck"></div>
-          </div>
-          
-          <div class="stock-status-box" style="margin-bottom: 20px;">
-            CURRENT WAREHOUSE STOCK: <span id="detailStockDisplay" class="stock-badge-large"></span>
-          </div>
-
-          <label class="hud-label">DEEP PARSED SPECIFICATIONS</label>
-          <ul id="detailSpecsList" class="spec-lines-deck" style="margin-top: 8px; border-top:1px solid var(--hud-border); padding-top: 10px;"></ul>
-          
-          <div class="meta-footer" style="margin-top: 30px; text-align: left; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 6px; border: 1px solid var(--hud-border);">
-            ASSIGNED WHOLESALE DEALER: <span id="detailDistCode" style="color: var(--hud-neon-cyan); font-weight:bold; font-size: 0.9rem;"></span>
-          </div>
+        <div class="detail-info">
+          <h2 id="dTitle"></h2>
+          <div id="dCat" class="neon-text-cyan"></div>
+          <div id="dPrice" class="neon-price"></div>
+          <div id="dVariants" class="pills-box"></div>
+          <div class="stock-status">WAREHOUSE STOCK: <span id="dStock"></span></div>
+          <ul id="dSpecs" class="spec-list"></ul>
+          <div class="dealer-info">DEALER: <span id="dDealer"></span></div>
         </div>
       </div>
     </div>
   </div>
 
-  <div id="compareMatrixModal" class="modal-overlay hidden" style="z-index: 2500;">
-    <div class="modal-window compare-matrix-window" style="max-width: 1400px; padding:25px;">
-      <div class="modal-top-bar">
-        <h3 class="modal-title">📊 ADVANCED PRODUCT COMPARISON MATRIX</h3>
-        <button id="btnCloseCompareMatrix" class="btn-close-modal">✕</button>
+  <div id="pinGate" class="overlay hidden">
+    <div class="modal pin-modal">
+      <h3>🔒 SECURITY PIN</h3>
+      <input type="password" id="pinInput" maxlength="4" placeholder="••••" class="pin-field">
+      <div class="flex-gap mt-10">
+        <button onclick="toggleModal('pinGate', false)" class="btn-red full-w">BACK</button>
+        <button onclick="verifyPin()" class="btn-neon-green full-w">VERIFY</button>
       </div>
-      <div id="matrixTableDeck" class="matrix-table-container" style="overflow-x:auto;"></div>
     </div>
-  </div>
-
-  <div id="hdViewerModal" class="modal-overlay hidden" style="z-index: 3000; background: rgba(0,0,0,0.95);">
-    <span id="btnCloseHdViewer" class="btn-close-modal" style="position:absolute; top:20px; right:30px; font-size:2.5rem; color:#fff; cursor:pointer;">✕</span>
-    <img id="hdViewerImg" src="" style="max-width:95%; max-height:90%; object-fit:contain; border:2px solid var(--hud-neon-cyan); box-shadow:0 0 40px var(--hud-neon-cyan-glow); border-radius:8px;">
   </div>
 
   <script src="app.js"></script>
