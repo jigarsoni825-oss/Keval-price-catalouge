@@ -1,93 +1,107 @@
 /* ============================================================
    KEVAL MOBILE ZONE | MASTER LOGIC ENGINE
+   ------------------------------------------------------------
    Designed & Developed By: Jigar
-   Version: 4.0 (Full Production Stack)
+   Location: Padra, Gujarat
+   Project: Keval Mobile Zone Inventory & Showroom Portal
+   Version: 5.5 (Enterprise Build)
    ============================================================ */
 
 /**
- * SECTION 1: GLOBAL CONFIGURATION & DATA RECEPTACLES
+ * SECTION 1: CORE FIREBASE INFRASTRUCTURE
  * ------------------------------------------------------------
- * These placeholders are where you will manually paste your
- * credentials. The app is built to fail-safe if these are empty.
+ * This section links your app to the Google Cloud Database.
+ * These keys are your unique shop identifiers.
  */
 
 const firebaseConfig = {
-    // PASTE YOUR FIREBASE SDK CONFIGURATION OBJECT HERE
+  apiKey: "AIzaSyDcesyj1CJkNpkZVdFb2-k5pXwg-nW8uiQ",
+  authDomain: "keval-mobile-zone.firebaseapp.com",
+  databaseURL: "https://keval-mobile-zone-default-rtdb.firebaseio.com",
+  projectId: "keval-mobile-zone",
+  storageBucket: "keval-mobile-zone.firebasestorage.app",
+  messagingSenderId: "617707071181",
+  appId: "1:617707071181:web:78123529b66d61d58e6b84"
 };
 
-// Cloudinary Identity (For High-Speed HD Image Delivery)
-const CLOUD_NAME = "PASTE_YOUR_CLOUDINARY_NAME_HERE"; 
-const UPLOAD_PRESET = "keval_shop_preset"; 
-
-// Initialize Firebase Instance
-if (firebaseConfig.apiKey && !firebase.apps.length) {
+// Initialize Firebase Production Instance
+if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
 
 /**
- * SECTION 2: APPLICATION STATE MANAGEMENT
+ * SECTION 2: CLOUDINARY HD ASSET CONFIGURATION
  * ------------------------------------------------------------
+ * Handles the high-speed image delivery for the showroom.
  */
-let allProducts = [];        // Master database snapshot
-let currentViewData = [];    // Currently filtered products
-let compareQueue = [];       // ID list for Comparison Matrix
-let variantDrafts = [];      // Temporary storage for form variants
-let colorDrafts = [];        // Temporary storage for form images/colors
-let isAdmin = false;         // UI state toggle
-let activeLedgerID = null;   // Reference for stock audit
-
-// Persistent Audio Preferences
-let audioEnabled = localStorage.getItem('keval_audio') !== 'OFF';
-let adminPin = localStorage.getItem('keval_admin_pin') || '1234';
-let pinRequired = localStorage.getItem('keval_pin_enabled') === 'ON';
+// IMPORTANT: Paste your Cloud Name from your Cloudinary Dashboard here
+const CLOUD_NAME = "PASTE_YOUR_CLOUDINARY_NAME_HERE"; 
+const UPLOAD_PRESET = "keval_shop_preset"; 
 
 /**
- * SECTION 3: AUDIO CONTROLLER (MODERN INTERFACE)
+ * SECTION 3: APPLICATION GLOBAL STATE
  * ------------------------------------------------------------
- * Uses Web Audio API for ultra-low latency interface clicks.
+ */
+let allProductsBank = [];      // Full local copy of database
+let compareMatrixQueue = [];   // Selected items for comparison (Max 5)
+let currentVariantDrafts = []; // Temp storage for form
+let currentColorDrafts = [];   // Temp storage for HD images
+let isAdminMode = false;       // UI state toggle
+let activeLedgerItemID = null; // Reference for stock auditing
+
+// Persistent User Settings (Saved in Browser Memory)
+let isAudioEnabled = localStorage.getItem('keval_audio') !== 'OFF';
+let masterAdminPin = localStorage.getItem('keval_admin_pin') || '1234';
+let isPinSecurityActive = localStorage.getItem('keval_pin_enabled') === 'ON';
+
+/**
+ * SECTION 4: HIGH-FIDELITY AUDIO ENGINE
+ * ------------------------------------------------------------
  */
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-function triggerSound(type = 'click') {
-    if (!audioEnabled) return;
+function playInterfaceSound(type = 'click') {
+    if (!isAudioEnabled) return;
     if (audioContext.state === 'suspended') audioContext.resume();
 
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
 
     const now = audioContext.currentTime;
 
     if (type === 'click') {
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(880, now);
-        oscillator.frequency.exponentialRampToValueAtTime(300, now + 0.05);
-        gainNode.gain.setValueAtTime(0.1, now);
-        gainNode.gain.linearRampToValueAtTime(0, now + 0.05);
-        oscillator.start();
-        oscillator.stop(now + 0.05);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(900, now);
+        osc.frequency.exponentialRampToValueAtTime(300, now + 0.04);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.04);
+        osc.start(); osc.stop(now + 0.04);
     } else if (type === 'success') {
-        oscillator.type = 'triangle';
-        oscillator.frequency.setValueAtTime(523.25, now); // C5
-        oscillator.frequency.setValueAtTime(659.25, now + 0.1); // E5
-        gainNode.gain.setValueAtTime(0.1, now);
-        gainNode.gain.linearRampToValueAtTime(0, now + 0.2);
-        oscillator.start();
-        oscillator.stop(now + 0.2);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(500, now);
+        osc.frequency.setValueAtTime(1000, now + 0.08);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.15);
+        osc.start(); osc.stop(now + 0.15);
+    } else if (type === 'error') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(200, now);
+        osc.frequency.linearRampToValueAtTime(100, now + 0.2);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.2);
+        osc.start(); osc.stop(now + 0.2);
     }
 }
 
 /**
- * SECTION 4: CLOUDINARY HD UPLOADER ENGINE
+ * SECTION 5: CLOUDINARY UPLOAD HANDLER
  * ------------------------------------------------------------
- * Processes local files and returns optimized secure URLs.
  */
-async function processImageUpload(file) {
+async function uploadToCloudinary(file) {
     if (!file) return null;
-
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', UPLOAD_PRESET);
@@ -98,159 +112,170 @@ async function processImageUpload(file) {
             body: formData
         });
         const result = await response.json();
-        return result.secure_url; // Returns the optimized web link
-    } catch (err) {
-        console.error("Asset Upload Failure:", err);
-        alert("Image upload failed. Check Cloudinary credentials.");
+        return result.secure_url;
+    } catch (error) {
+        console.error("Showroom Upload Error:", error);
+        playInterfaceSound('error');
+        alert("CRITICAL: Cloudinary Link Failed. Check Cloud Name.");
         return null;
     }
 }
 
 /**
- * SECTION 5: FIREBASE REALTIME SYNCHRONIZER
+ * SECTION 6: REAL-TIME DATABASE SYNCHRONIZER
  * ------------------------------------------------------------
- * Listens for any change in the database and updates the UI instantly.
  */
-function initializeDataSync() {
+function startLiveSync() {
     db.ref('products').on('value', (snapshot) => {
+        allProductsBank = [];
         const data = snapshot.val();
-        allProducts = [];
-
         if (data) {
             Object.keys(data).forEach(key => {
-                allProducts.push({ id: key, ...data[key] });
+                allProductsBank.push({ id: key, ...data[key] });
             });
         }
-
-        // Auto-refresh UI based on current view
-        buildDynamicFilterLists();
-        isAdmin ? renderAdminConsole() : renderUserCatalog();
+        
+        // Dynamic Filter Logic
+        populateFilterMenus();
+        
+        // Refresh UI based on state
+        if (isAdminMode) {
+            renderAdminDashboard();
+        } else {
+            renderUserShowroom();
+        }
+        
+        // Update comparison dock count
+        updateComparisonDockUI();
     });
 }
 
+function populateFilterMenus() {
+    const categories = [...new Set(allProductsBank.map(p => p.category))];
+    const brands = [...new Set(allProductsBank.map(p => p.brand))];
+
+    const catSelect = document.getElementById('userFilterCat');
+    const brandSelect = document.getElementById('userFilterBrand');
+
+    const activeCat = catSelect.value;
+    const activeBrand = brandSelect.value;
+
+    catSelect.innerHTML = '<option value="">ALL CATEGORIES</option>' + categories.map(c => `<option value="${c}">${c}</option>`).join('');
+    brandSelect.innerHTML = '<option value="">ALL BRANDS</option>' + brands.map(b => `<option value="${b}">${b}</option>`).join('');
+
+    catSelect.value = activeCat;
+    brandSelect.value = activeBrand;
+}
+
 /**
- * SECTION 6: USER UI ENGINE (SHOPPING FRONTEND)
+ * SECTION 7: USER SHOWROOM (FRONTEND RENDERING)
  * ------------------------------------------------------------
  */
-function renderUserCatalog() {
+function renderUserShowroom() {
     const grid = document.getElementById('productGrid');
-    const searchVal = document.getElementById('userSearch').value.toLowerCase();
-    const catVal = document.getElementById('userFilterCat').value;
-    const brandVal = document.getElementById('userFilterBrand').value;
+    const searchQuery = document.getElementById('userSearch').value.toLowerCase();
+    const filterCat = document.getElementById('userFilterCat').value;
+    const filterBrand = document.getElementById('userFilterBrand').value;
 
     grid.innerHTML = '';
 
-    const filtered = allProducts.filter(p => {
-        const matchesSearch = p.model.toLowerCase().includes(searchVal) || 
-                              p.brand.toLowerCase().includes(searchVal) ||
-                              p.series.toLowerCase().includes(searchVal);
-        const matchesCat = catVal === "" || p.category === catVal;
-        const matchesBrand = brandVal === "" || p.brand === brandVal;
-        return matchesSearch && matchesCat && matchesBrand;
+    const displaySet = allProductsBank.filter(p => {
+        const matchSearch = p.model.toLowerCase().includes(searchQuery) || p.brand.toLowerCase().includes(searchQuery);
+        const matchCat = filterCat === "" || p.category === filterCat;
+        const matchBrand = filterBrand === "" || p.brand === filterBrand;
+        return matchSearch && matchCat && matchBrand;
     });
 
-    filtered.forEach(product => {
-        const primaryImg = product.colors?.[0]?.url || 'https://placehold.co/400x400/000/00f0ff?text=No+Preview';
-        const basePrice = product.variants?.[0]?.price || 0;
-        const baseStock = product.variants?.[0]?.stock || 0;
+    if (displaySet.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:50px; color:var(--text-muted);">NO MATCHING PRODUCTS IN SHOWROOM</div>`;
+        return;
+    }
+
+    displaySet.forEach(product => {
+        const primaryImg = product.colors?.[0]?.url || 'https://placehold.co/400x400/000/00f0ff?text=Keval+Mobile';
+        const initialPrice = product.variants?.[0]?.price || 0;
+        const totalStock = product.variants?.reduce((a, v) => a + (v.stock || 0), 0) || 0;
 
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-            <div class="card-img-box" onclick="viewProductDetails('${product.id}')">
-                <img src="${primaryImg}" alt="${product.model}">
+            <div class="card-img-box" onclick="openProductDetailView('${product.id}')">
+                <img src="${primaryImg}" loading="lazy">
             </div>
-            <div class="card-brand">${product.brand} • ${product.series}</div>
-            <h3 class="card-title" onclick="viewProductDetails('${product.id}')">${product.model}</h3>
-            <div class="card-price">₹${basePrice.toLocaleString('en-IN')}</div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                <span style="font-size:0.7rem; color:${baseStock > 0 ? 'var(--neon-green)' : 'var(--neon-red)'}; font-weight:bold;">
-                    ${baseStock > 0 ? 'IN STOCK' : 'OUT OF STOCK'}
+            <div class="card-brand">${product.brand.toUpperCase()} • ${product.series.toUpperCase()}</div>
+            <h3 class="card-title" onclick="openProductDetailView('${product.id}')">${product.model}</h3>
+            <div class="card-price">₹${initialPrice.toLocaleString('en-IN')}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
+                <span style="font-size:0.7rem; font-weight:bold; color:${totalStock > 0 ? 'var(--neon-green)' : 'var(--neon-red)'};">
+                    ${totalStock > 0 ? `IN STOCK (${totalStock})` : 'OUT OF STOCK'}
                 </span>
-                <button onclick="addToComparison('${product.id}')" class="btn-neon-icon">⚖️ COMPARE</button>
+                <button onclick="handleComparisonQueue('${product.id}')" class="btn-neon-icon">⚖️ COMPARE</button>
             </div>
         `;
         grid.appendChild(card);
     });
 }
 
-function buildDynamicFilterLists() {
-    const cats = [...new Set(allProducts.map(p => p.category))];
-    const brands = [...new Set(allProducts.map(p => p.brand))];
-
-    const catSelect = document.getElementById('userFilterCat');
-    const brandSelect = document.getElementById('userFilterBrand');
-
-    const prevCat = catSelect.value;
-    const prevBrand = brandSelect.value;
-
-    catSelect.innerHTML = '<option value="">ALL CATEGORIES</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('');
-    brandSelect.innerHTML = '<option value="">ALL BRANDS</option>' + brands.map(b => `<option value="${b}">${b}</option>`).join('');
-
-    catSelect.value = prevCat;
-    brandSelect.value = prevBrand;
-}
-
 /**
- * SECTION 7: ADMIN CONSOLE ENGINE (BACKEND TOOLS)
+ * SECTION 8: ADMIN DASHBOARD (MANAGEMENT LOGIC)
  * ------------------------------------------------------------
  */
-function renderAdminConsole() {
+function renderAdminDashboard() {
     const list = document.getElementById('adminList');
-    const searchVal = document.getElementById('adminSearch').value.toLowerCase();
+    const search = document.getElementById('adminSearch').value.toLowerCase();
     list.innerHTML = '';
 
-    const filtered = allProducts.filter(p => p.model.toLowerCase().includes(searchVal) || p.brand.toLowerCase().includes(searchVal));
+    const adminSet = allProductsBank.filter(p => p.model.toLowerCase().includes(search) || p.brand.toLowerCase().includes(search));
 
-    filtered.forEach(p => {
-        const firstPrice = p.variants?.[0]?.price || 0;
-        const totalStock = p.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0;
-
+    adminSet.forEach(p => {
+        const basePrice = p.variants?.[0]?.price || 0;
         const row = document.createElement('div');
         row.className = 'admin-item';
         row.innerHTML = `
             <div style="flex:1;">
-                <div style="font-weight:900; color:#fff;">${p.brand} ${p.model}</div>
-                <div style="font-size:0.7rem; color:var(--neon-cyan);">${p.category} | Dealer: ${p.dealer}</div>
-                <div style="font-size:0.7rem; color:var(--text-dim);">Total Units: ${totalStock}</div>
+                <div style="font-weight:900; font-size:1.1rem; color:#fff;">${p.brand} ${p.model}</div>
+                <div style="font-size:0.75rem; color:var(--neon-cyan);">${p.category} | Dealer: ${p.dealer}</div>
             </div>
-            <div style="display:flex; gap:12px; align-items:center;">
-                <div style="display:flex; flex-direction:column; align-items:center;">
-                   <label style="font-size:0.6rem; color:var(--neon-green);">QUICK PRICE</label>
-                   <input type="number" value="${firstPrice}" class="neon-input" style="width:110px; margin:0; padding:8px; text-align:center; color:var(--neon-green);" 
-                          onchange="updateProductPriceQuick('${p.id}', this.value)">
+            <div style="display:flex; gap:15px; align-items:center;">
+                <div style="text-align:center;">
+                    <label style="font-size:0.6rem; color:var(--neon-green); display:block; margin-bottom:5px;">DAILY PRICE ₹</label>
+                    <input type="number" value="${basePrice}" class="neon-input" 
+                           style="width:110px; margin:0; padding:8px; text-align:center; color:var(--neon-green); border-color:var(--neon-green);" 
+                           onchange="quickUpdateBasePrice('${p.id}', this.value)">
                 </div>
-                <button onclick="manageLedger('${p.id}')" class="btn-neon-purple" title="Stock Audit">📦</button>
-                <button onclick="editProductEntry('${p.id}')" class="btn-neon-cyan" title="Edit Specs">✏️</button>
-                <button onclick="deleteProductPermanent('${p.id}')" style="background:var(--neon-red); color:#fff; padding:10px;">🗑️</button>
+                <button onclick="triggerStockLedger('${p.id}')" class="btn-neon-purple" title="Audit Ledger">📦</button>
+                <button onclick="initiateProductEdit('${p.id}')" class="btn-neon-cyan" title="Edit Full Specs">✏️</button>
+                <button onclick="performPermanentDelete('${p.id}', '${p.model}')" style="background:var(--neon-red); color:#fff; padding:10px;">🗑️</button>
             </div>
         `;
         list.appendChild(row);
     });
 }
 
-function updateProductPriceQuick(id, newVal) {
-    const p = allProducts.find(x => x.id === id);
+function quickUpdateBasePrice(id, newPrice) {
+    const p = allProductsBank.find(x => x.id === id);
     if (p && p.variants[0]) {
-        p.variants[0].price = parseInt(newVal);
-        db.ref('products/' + id).set(p)
-          .then(() => triggerSound('success'));
+        p.variants[0].price = parseInt(newPrice);
+        db.ref('products/' + id).update(p).then(() => {
+            playInterfaceSound('success');
+        });
     }
 }
 
 /**
- * SECTION 8: STOCK AUDIT LEDGER (REVERSION LOGIC)
+ * SECTION 9: STOCK AUDIT LEDGER (PRECISION REVERSION)
  * ------------------------------------------------------------
  */
-function manageLedger(id) {
-    activeLedgerID = id;
-    const p = allProducts.find(x => x.id === id);
-    
-    // Fill Variant Dropdown
-    const varSelect = document.getElementById('lVar');
-    varSelect.innerHTML = p.variants.map((v, i) => `<option value="${i}">${v.name} (Cur: ${v.stock})</option>`).join('');
+function triggerStockLedger(id) {
+    activeLedgerItemID = id;
+    const p = allProductsBank.find(x => x.id === id);
+    if (!p) return;
 
-    // Clear Inputs
+    // Build Variant Selector
+    const vSel = document.getElementById('lVar');
+    vSel.innerHTML = p.variants.map((v, i) => `<option value="${i}">${v.name} (Now: ${v.stock})</option>`).join('');
+
+    // Reset Form
     document.getElementById('lQty').value = 1;
     document.getElementById('lNote').value = '';
 
@@ -259,449 +284,477 @@ function manageLedger(id) {
 }
 
 function renderLedgerHistory(product) {
-    const container = document.getElementById('ledgerHistory');
-    container.innerHTML = '';
+    const historyBox = document.getElementById('ledgerHistory');
+    historyBox.innerHTML = '';
 
     if (!product.ledger || product.ledger.length === 0) {
-        container.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-dim);">NO TRANSACTION HISTORY</div>';
+        historyBox.innerHTML = '<div style="padding:30px; text-align:center; color:var(--text-muted);">NO TRANSACTION RECORDS FOUND</div>';
         return;
     }
 
-    // Show newest first
-    [...product.ledger].reverse().forEach((entry, index) => {
-        const actualIndex = product.ledger.length - 1 - index;
+    // Newest Records First
+    [...product.ledger].reverse().forEach((entry, idx) => {
+        const originalIndex = product.ledger.length - 1 - idx;
         const row = document.createElement('div');
         row.className = `ledger-row ${entry.type === 'SALE' ? 'sale' : 'purchase'}`;
         row.innerHTML = `
-            <div>
-                <strong>${entry.type}: ${entry.variant}</strong><br>
-                <small>${entry.date} | ${entry.note}</small>
+            <div style="flex:1;">
+                <div style="font-weight:bold;">${entry.type === 'SALE' ? '📤 SALE' : '📥 PURCHASE'} - ${entry.variant}</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">${entry.date} • Note: ${entry.note}</div>
             </div>
-            <div style="display:flex; align-items:center; gap:15px;">
-                <span style="font-weight:900;">${entry.type === 'SALE' ? '-' : '+'}${entry.qty}</span>
-                <button onclick="revertLedgerTransaction('${product.id}', ${actualIndex})" class="btn-red-mini" style="background:var(--neon-red); color:#fff; padding:4px 8px; font-size:0.6rem;">UNDO</button>
+            <div style="display:flex; align-items:center; gap:20px;">
+                <span style="font-weight:900; font-size:1rem; color:${entry.type === 'SALE' ? 'var(--neon-red)' : 'var(--neon-green)'};">
+                    ${entry.type === 'SALE' ? '-' : '+'}${entry.qty} Units
+                </span>
+                <button onclick="undoLedgerTransaction('${product.id}', ${originalIndex})" class="btn-red-mini" 
+                        style="background:var(--neon-red); color:#fff; border-radius:4px; font-size:0.65rem;">REVERT</button>
             </div>
         `;
-        container.appendChild(row);
+        historyBox.appendChild(row);
     });
 }
 
 async function commitLedger() {
-    const p = allProducts.find(x => x.id === activeLedgerID);
-    const vIdx = document.getElementById('lVar').value;
+    const p = allProductsBank.find(x => x.id === activeLedgerItemID);
+    const varIndex = document.getElementById('lVar').value;
     const type = document.getElementById('lType').value;
-    const qty = parseInt(document.getElementById('lQty').value);
-    const note = document.getElementById('lNote').value || "Manual Adjustment";
+    const quantity = parseInt(document.getElementById('lQty').value);
+    const note = document.getElementById('lNote').value || "Manual Update";
 
-    if (isNaN(qty) || qty <= 0) return;
-
-    // Adjust Stock
-    if (type === 'SALE') {
-        p.variants[vIdx].stock -= qty;
-    } else {
-        p.variants[vIdx].stock += qty;
+    if (isNaN(quantity) || quantity <= 0) {
+        playInterfaceSound('error');
+        return;
     }
 
-    // Add History
-    const newEntry = {
+    // Mathematical Stock Adjustment
+    if (type === 'SALE') {
+        p.variants[varIndex].stock -= quantity;
+    } else {
+        p.variants[varIndex].stock += quantity;
+    }
+
+    // Create Audit Log
+    const logEntry = {
         type,
-        variant: p.variants[vIdx].name,
-        qty,
+        variant: p.variants[varIndex].name,
+        qty: quantity,
         note,
-        date: new Date().toLocaleString('en-IN')
+        date: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
     };
 
     if (!p.ledger) p.ledger = [];
-    p.ledger.push(newEntry);
+    p.ledger.push(logEntry);
 
-    await db.ref('products/' + activeLedgerID).set(p);
-    triggerSound('success');
-    manageLedger(activeLedgerID); // Refresh UI
+    await db.ref('products/' + activeLedgerItemID).set(p);
+    playInterfaceSound('success');
+    triggerStockLedger(activeLedgerItemID); // Refresh UI
 }
 
-async function revertLedgerTransaction(id, index) {
-    if (!confirm("Are you sure you want to delete this record and REVERT the stock?")) return;
+async function undoLedgerTransaction(prodId, ledgerIdx) {
+    if (!confirm("CRITICAL: Revert physical stock and permanently delete this audit record?")) return;
 
-    const p = allProducts.find(x => x.id === id);
-    const entry = p.ledger[index];
+    const p = allProductsBank.find(x => x.id === prodId);
+    const entryToUndo = p.ledger[ledgerIdx];
 
-    // Find the variant to revert stock
-    const vIdx = p.variants.findIndex(v => v.name === entry.variant);
-    if (vIdx > -1) {
-        if (entry.type === 'SALE') {
-            p.variants[vIdx].stock += entry.qty; // Give back stock
+    // Identify variant and reverse the math
+    const targetVarIdx = p.variants.findIndex(v => v.name === entryToUndo.variant);
+    if (targetVarIdx > -1) {
+        if (entryToUndo.type === 'SALE') {
+            p.variants[targetVarIdx].stock += entryToUndo.qty; // Return sold stock
         } else {
-            p.variants[vIdx].stock -= entry.qty; // Remove purchased stock
+            p.variants[targetVarIdx].stock -= entryToUndo.qty; // Remove purchased stock
         }
     }
 
-    // Remove entry
-    p.ledger.splice(index, 1);
+    // Remove the row from ledger array
+    p.ledger.splice(ledgerIdx, 1);
 
-    await db.ref('products/' + id).set(p);
-    triggerSound('click');
-    manageLedger(id);
+    await db.ref('products/' + prodId).set(p);
+    playInterfaceSound('click');
+    triggerStockLedger(prodId);
 }
 
 /**
- * SECTION 9: FORM ENGINE (CREATE & EDIT)
+ * SECTION 10: PRODUCT FORM HUB (CREATE & EDIT)
  * ------------------------------------------------------------
  */
-function editProductEntry(id) {
-    const p = allProducts.find(x => x.id === id);
+function initiateProductEdit(id) {
+    const p = allProductsBank.find(x => x.id === id);
     if (!p) return;
 
     document.getElementById('editId').value = p.id;
-    document.getElementById('modalTitle').innerText = "EDIT PRODUCT: " + p.model;
+    document.getElementById('modalTitle').innerText = "SYSTEM UPDATE: " + p.model.toUpperCase();
     document.getElementById('pCat').value = p.category;
     document.getElementById('pBrand').value = p.brand;
     document.getElementById('pSeries').value = p.series;
     document.getElementById('pModel').value = p.model;
     document.getElementById('pDealer').value = p.dealer;
-    document.getElementById('pSpecs').value = p.specs.join('\n');
+    document.getElementById('pSpecs').value = (p.specs || []).join('\n');
 
-    variantDrafts = [...p.variants];
-    colorDrafts = [...(p.colors || [])];
+    currentVariantDrafts = [...p.variants];
+    currentColorDrafts = [...(p.colors || [])];
 
-    renderVariantDrafts();
-    renderColorDrafts();
+    refreshFormDrafts();
     toggleModal('entryModal', true);
 }
 
 function addVariant() {
-    const name = document.getElementById('vName').value.trim();
-    const price = parseInt(document.getElementById('vPrice').value);
-    const stock = parseInt(document.getElementById('vStock').value) || 0;
+    const label = document.getElementById('vName').value.trim();
+    const cost = parseInt(document.getElementById('vPrice').value);
+    const count = parseInt(document.getElementById('vStock').value) || 0;
 
-    if (!name || isNaN(price)) return;
+    if (!label || isNaN(cost)) {
+        playInterfaceSound('error');
+        return;
+    }
 
-    variantDrafts.push({ name, price, stock });
+    currentVariantDrafts.push({ name: label, price: cost, stock: count });
+    
+    // Clear mini-inputs
     document.getElementById('vName').value = '';
     document.getElementById('vPrice').value = '';
     document.getElementById('vStock').value = '0';
-    renderVariantDrafts();
+    
+    refreshFormDrafts();
 }
 
-function renderVariantDrafts() {
-    const container = document.getElementById('variantPills');
-    container.innerHTML = variantDrafts.map((v, i) => `
-        <div class="variant-pill" onclick="variantDrafts.splice(${i},1); renderVariantDrafts();">
-            ${v.name} - ₹${v.price} (Qty: ${v.stock}) ✕
+function refreshFormDrafts() {
+    // Render Variants
+    const vCont = document.getElementById('variantPills');
+    vCont.innerHTML = currentVariantDrafts.map((v, i) => `
+        <div class="variant-pill" onclick="currentVariantDrafts.splice(${i},1); refreshFormDrafts();">
+            ${v.name} • ₹${v.price} (Qty: ${v.stock}) ✕
+        </div>
+    `).join('');
+
+    // Render Color Slots
+    const cCont = document.getElementById('colorContainer');
+    cCont.innerHTML = currentColorDrafts.map((c, i) => `
+        <div class="admin-item" style="padding:8px; margin-top:8px; border:1px solid var(--border-bright);">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <img src="${c.url}" width="40" height="40" style="object-fit:cover; border-radius:6px; border:1px solid var(--neon-cyan);">
+                <span style="font-weight:bold;">${c.name}</span>
+            </div>
+            <button type="button" class="btn-red-mini" onclick="currentColorDrafts.splice(${i},1); refreshFormDrafts();">✕</button>
         </div>
     `).join('');
 }
 
 async function addColorSlot() {
-    const name = prompt("Enter Colour Name (e.g., Titanium Blue):");
-    if (!name) return;
+    const colName = prompt("IDENTIFY COLOUR (e.g., Midnight Black):");
+    if (!colName) return;
 
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
-    fileInput.onchange = async (e) => {
+    const picker = document.createElement('input');
+    picker.type = 'file';
+    picker.accept = 'image/*';
+    picker.onchange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            alert("Uploading HD Visual... Please wait.");
-            const url = await processImageUpload(file);
-            if (url) {
-                colorDrafts.push({ name, url });
-                renderColorDrafts();
+            alert("UPLOADING HD ASSET... PLEASE WAIT.");
+            const secureUrl = await uploadToCloudinary(file);
+            if (secureUrl) {
+                currentColorDrafts.push({ name: colName, url: secureUrl });
+                refreshFormDrafts();
             }
         }
     };
-    fileInput.click();
-}
-
-function renderColorDrafts() {
-    const container = document.getElementById('colorContainer');
-    container.innerHTML = colorDrafts.map((c, i) => `
-        <div class="admin-item" style="padding:10px; margin-bottom:5px; border:1px solid var(--border-bright);">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <img src="${c.url}" width="40" height="40" style="object-fit:cover; border-radius:4px;">
-                <span>${c.name}</span>
-            </div>
-            <button type="button" class="btn-red-mini" onclick="colorDrafts.splice(${i},1); renderColorDrafts();">✕</button>
-        </div>
-    `).join('');
+    picker.click();
 }
 
 document.getElementById('productForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (variantDrafts.length === 0) return alert("Add at least one variant/price.");
+    if (currentVariantDrafts.length === 0) {
+        alert("CRITICAL ERROR: Define at least one price variant.");
+        return;
+    }
 
-    const id = document.getElementById('editId').value || "PROD_" + Date.now();
-    const specs = document.getElementById('pSpecs').value.split('\n').filter(s => s.trim());
+    const id = document.getElementById('editId').value || "KMZ_" + Date.now();
+    const lines = document.getElementById('pSpecs').value.split('\n').filter(s => s.trim());
     
-    // Preserve existing ledger if editing
-    const existing = allProducts.find(x => x.id === id);
-    const ledger = existing ? (existing.ledger || []) : [];
+    const existingObj = allProductsBank.find(x => x.id === id);
+    const ledgerData = existingObj ? (existingObj.ledger || []) : [];
 
-    const productDoc = {
+    const finalDoc = {
         id,
         category: document.getElementById('pCat').value,
         brand: document.getElementById('pBrand').value,
         series: document.getElementById('pSeries').value,
         model: document.getElementById('pModel').value,
         dealer: document.getElementById('pDealer').value,
-        specs,
-        variants: variantDrafts,
-        colors: colorDrafts,
-        ledger
+        specs: lines,
+        variants: currentVariantDrafts,
+        colors: currentColorDrafts,
+        ledger: ledgerData
     };
 
-    await db.ref('products/' + id).set(productDoc);
-    triggerSound('success');
+    await db.ref('products/' + id).set(finalDoc);
+    playInterfaceSound('success');
     toggleModal('entryModal', false);
-    clearProductForm();
+    resetFormState();
 });
 
-function clearProductForm() {
+function resetFormState() {
     document.getElementById('productForm').reset();
     document.getElementById('editId').value = '';
-    variantDrafts = [];
-    colorDrafts = [];
-    renderVariantDrafts();
-    renderColorDrafts();
+    currentVariantDrafts = [];
+    currentColorDrafts = [];
+    refreshFormDrafts();
 }
 
 /**
- * SECTION 10: PRODUCT COMPARISON (MATRIX ENGINE)
+ * SECTION 11: FIVE-PRODUCT COMPARISON MATRIX
  * ------------------------------------------------------------
  */
-function addToComparison(id) {
-    if (compareQueue.includes(id)) return;
-    if (compareQueue.length >= 5) return alert("Comparison Matrix limit: 5 Items");
-    
-    compareQueue.push(id);
-    triggerSound('click');
-    updateCompareDock();
+function handleComparisonQueue(id) {
+    if (compareMatrixQueue.includes(id)) {
+        compareMatrixQueue = compareMatrixQueue.filter(x => x !== id);
+    } else {
+        if (compareMatrixQueue.length >= 5) {
+            alert("MATRIX LIMIT: Maximum 5 items allowed side-by-side.");
+            return;
+        }
+        compareMatrixQueue.push(id);
+    }
+    playInterfaceSound('click');
+    updateComparisonDockUI();
 }
 
-function updateCompareDock() {
+function updateComparisonDockUI() {
     const dock = document.getElementById('compareDock');
-    const countSpan = document.getElementById('compCount');
-    const itemsCont = document.getElementById('dockItems');
+    const countText = document.getElementById('compCount');
+    const itemFlow = document.getElementById('dockItems');
 
-    countSpan.innerText = compareQueue.length;
+    countText.innerText = compareMatrixQueue.length;
     
-    if (compareQueue.length > 0) {
+    if (compareMatrixQueue.length > 0) {
         dock.classList.remove('hidden');
     } else {
         dock.classList.add('hidden');
     }
 
-    itemsCont.innerHTML = compareQueue.map(id => {
-        const p = allProducts.find(x => x.id === id);
+    itemFlow.innerHTML = compareMatrixQueue.map(id => {
+        const prod = allProductsBank.find(x => x.id === id);
         return `
             <div class="dock-pill">
-                ${p.model} <span onclick="removeFromCompare('${id}')">✕</span>
+                ${prod.model} <span onclick="handleComparisonQueue('${id}')" style="cursor:pointer; color:var(--neon-red); font-weight:bold; margin-left:8px;">✕</span>
             </div>
         `;
     }).join('');
 }
 
-function removeFromCompare(id) {
-    compareQueue = compareQueue.filter(x => x !== id);
-    updateCompareDock();
+function clearCompare() {
+    compareMatrixQueue = [];
+    updateComparisonDockUI();
 }
 
-document.getElementById('btnCompClear').onclick = () => {
-    compareQueue = [];
-    updateCompareDock();
-};
-
-document.getElementById('btnOpenMatrix').onclick = () => {
-    if (compareQueue.length < 2) return alert("Select at least 2 items to compare.");
+function runComparisonMatrix() {
+    if (compareMatrixQueue.length < 2) {
+        alert("Please select at least 2 models for matrix generation.");
+        return;
+    }
     
-    const body = document.getElementById('matrixBody');
-    const items = compareQueue.map(id => allProducts.find(x => x.id === id));
+    const targetBody = document.getElementById('matrixBody');
+    const selectedItems = compareMatrixQueue.map(id => allProductsBank.find(x => x.id === id));
 
-    let html = '<table class="matrix-table">';
+    let matrixHtml = '<table class="matrix-table">';
     
-    // Header Row (Images & Models)
-    html += '<thead><tr><th>SPECIFICATIONS</th>';
-    items.forEach(p => {
-        const img = p.colors?.[0]?.url || '';
-        html += `<th><img src="${img}" style="width:80px; display:block; margin:0 auto 10px auto;">${p.model}</th>`;
+    // Header (Model Visuals)
+    matrixHtml += '<thead><tr><th>SPEC METRIC</th>';
+    selectedItems.forEach(p => {
+        const icon = p.colors?.[0]?.url || '';
+        matrixHtml += `<th><img src="${icon}" style="width:80px; margin:0 auto 10px auto; display:block;">${p.model}</th>`;
     });
-    html += '</tr></thead><tbody>';
+    matrixHtml += '</tr></thead><tbody>';
 
-    // Categories
-    html += '<tr><td><strong>CATEGORY</strong></td>' + items.map(p => `<td>${p.category}</td>`).join('') + '</tr>';
-    // Brand/Series
-    html += '<tr><td><strong>BRAND • SERIES</strong></td>' + items.map(p => `<td>${p.brand} ${p.series}</td>`).join('') + '</tr>';
-    // Base Price
-    html += '<tr><td><strong>BASE PRICE</strong></td>' + items.map(p => `<td style="color:var(--neon-green); font-weight:bold;">₹${p.variants[0].price}</td>`).join('') + '</tr>';
-    // Variants
-    html += '<tr><td><strong>VARIANTS</strong></td>' + items.map(p => `<td>${p.variants.map(v => v.name).join('<br>')}</td>`).join('') + '</tr>';
-    // Specs
-    html += '<tr><td><strong>DEEP SPECS</strong></td>' + items.map(p => `<td><small>${p.specs.join('<br>')}</small></td>`).join('') + '</tr>';
+    // Metrics Rows
+    const metrics = [
+        { label: 'BRAND', key: 'brand' },
+        { label: 'SERIES', key: 'series' },
+        { label: 'PRICE (BASE)', key: 'variants', format: (v) => `₹${v[0].price}` },
+        { label: 'VARIANTS', key: 'variants', format: (v) => v.map(x => x.name).join('<br>') },
+        { label: 'DEEP SPECS', key: 'specs', format: (s) => s.join('<br>') }
+    ];
+
+    metrics.forEach(m => {
+        matrixHtml += `<tr><td><strong>${m.label}</strong></td>`;
+        selectedItems.forEach(p => {
+            const data = p[m.key];
+            const displayValue = m.format ? m.format(data) : data;
+            matrixHtml += `<td>${displayValue}</td>`;
+        });
+        matrixHtml += '</tr>';
+    });
     
-    html += '</tbody></table>';
-    body.innerHTML = html;
+    matrixHtml += '</tbody></table>';
+    targetBody.innerHTML = matrixHtml;
     toggleModal('matrixModal', true);
-};
+}
 
 /**
- * SECTION 11: SHOPPING DETAIL VIEW ENGINE
+ * SECTION 12: PRODUCT DETAIL VIEW (SHOPPING HUB)
  * ------------------------------------------------------------
  */
-function viewProductDetails(id) {
-    const p = allProducts.find(x => x.id === id);
+function openProductDetailView(id) {
+    const p = allProductsBank.find(x => x.id === id);
     if (!p) return;
 
     document.getElementById('dTitle').innerText = p.model;
-    document.getElementById('dCat').innerText = p.category;
-    document.getElementById('dDealer').innerText = p.dealer;
+    document.getElementById('dCat').innerText = p.category.toUpperCase();
+    document.getElementById('dDealer').innerText = p.dealer.toUpperCase();
 
-    // Visuals
+    // Visual Frame
     const mainImg = document.getElementById('dMainImg');
-    const thumbRow = document.getElementById('dThumbs');
+    const thumbArea = document.getElementById('dThumbs');
     mainImg.src = p.colors?.[0]?.url || '';
-    thumbRow.innerHTML = (p.colors || []).map((c, i) => `
-        <img src="${c.url}" class="thumb ${i === 0 ? 'active' : ''}" onclick="changeDetailVisual(this, '${c.url}')">
+    
+    thumbArea.innerHTML = (p.colors || []).map((c, i) => `
+        <img src="${c.url}" class="thumb ${i === 0 ? 'active' : ''}" 
+             onclick="swapShowroomImage(this, '${c.url}')">
     `).join('');
 
-    // Variants & Price
-    const variantBox = document.getElementById('dVariants');
-    const priceBox = document.getElementById('dPrice');
-    const stockBox = document.getElementById('dStock');
+    // Pricing & Variants
+    const vArea = document.getElementById('dVariants');
+    const pArea = document.getElementById('dPrice');
+    const sArea = document.getElementById('dStock');
 
-    priceBox.innerText = `₹${p.variants[0].price.toLocaleString('en-IN')}`;
-    stockBox.innerText = `${p.variants[0].stock} UNITS`;
+    pArea.innerText = `₹${p.variants[0].price.toLocaleString('en-IN')}`;
+    sArea.innerText = `${p.variants[0].stock} UNITS`;
 
-    variantBox.innerHTML = p.variants.map((v, i) => `
+    vArea.innerHTML = p.variants.map((v, i) => `
         <button class="btn-neon-icon ${i === 0 ? 'btn-neon-cyan' : ''}" 
-                onclick="updateDetailPrice(this, ${v.price}, ${v.stock})">
+                style="padding:8px 15px; margin-right:8px;"
+                onclick="syncDetailPricing(this, ${v.price}, ${v.stock})">
             ${v.name}
         </button>
     `).join('');
 
-    // Specs
-    const specsBox = document.getElementById('dSpecs');
-    specsBox.innerHTML = p.specs.map(s => `<div>⚡ ${s}</div>`).join('');
+    // Specs List
+    const specArea = document.getElementById('dSpecs');
+    specArea.innerHTML = (p.specs || []).map(s => `<div style="margin-bottom:8px;">⚡ ${s}</div>`).join('');
 
     toggleModal('detailModal', true);
 }
 
-function changeDetailVisual(el, url) {
+function swapShowroomImage(thumb, url) {
     document.getElementById('dMainImg').src = url;
     document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
+    thumb.classList.add('active');
 }
 
-function updateDetailPrice(el, price, stock) {
+function syncDetailPricing(btn, price, stock) {
     document.getElementById('dPrice').innerText = `₹${price.toLocaleString('en-IN')}`;
     document.getElementById('dStock').innerText = `${stock} UNITS`;
     
-    el.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('btn-neon-cyan'));
-    el.classList.add('btn-neon-cyan');
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('btn-neon-cyan'));
+    btn.classList.add('btn-neon-cyan');
 }
 
 /**
- * SECTION 12: UTILITY FUNCTIONS & HANDLERS
+ * SECTION 13: SECURITY GATE & NAVIGATION
  * ------------------------------------------------------------
  */
 function toggleModal(id, show) {
     const modal = document.getElementById(id);
     modal.classList.toggle('hidden', !show);
-    if (show) triggerSound('click');
+    if (show) playInterfaceSound('click');
 }
 
-function deleteProductPermanent(id) {
-    if (confirm("CRITICAL: Permanently wipe this product from cloud inventory?")) {
+function performPermanentDelete(id, name) {
+    if (confirm(`CRITICAL WARNING: Permanently wipe ${name.toUpperCase()} from cloud inventory?`)) {
         db.ref('products/' + id).remove();
-        triggerSound('click');
+        playInterfaceSound('click');
     }
 }
 
-// Admin PIN Logic
+// PIN Verification Logic
+function executePinVerification() {
+    const entered = document.getElementById('pinInput').value;
+    if (entered === masterAdminPin) {
+        isAdminMode = true;
+        toggleModal('pinGate', false);
+        document.getElementById('pinInput').value = '';
+        enterAdminUI();
+    } else {
+        playInterfaceSound('error');
+        alert("SECURITY ALERT: INVALID PIN ENTERED.");
+        document.getElementById('pinInput').value = '';
+    }
+}
+
 document.getElementById('btnAdminToggle').onclick = () => {
-    if (isAdmin) {
-        // Switch back to User
-        isAdmin = false;
+    if (isAdminMode) {
+        isAdminMode = false;
         document.getElementById('adminView').classList.add('hidden');
         document.getElementById('userView').classList.remove('hidden');
         document.getElementById('btnAdminToggle').innerText = "⚙️ ADMIN CONTROL";
-        renderUserCatalog();
+        renderUserShowroom();
     } else {
-        if (pinRequired) {
+        if (isPinSecurityActive) {
             toggleModal('pinGate', true);
         } else {
-            switchToAdmin();
+            enterAdminUI();
         }
     }
 };
 
-document.getElementById('btnVerifyPin').onclick = () => {
-    const entered = document.getElementById('pinInput').value;
-    if (entered === adminPin) {
-        toggleModal('pinGate', false);
-        document.getElementById('pinInput').value = '';
-        switchToAdmin();
-    } else {
-        alert("ACCESS DENIED: PIN INVALID.");
-        document.getElementById('pinInput').value = '';
-    }
-};
-
-function switchToAdmin() {
-    isAdmin = true;
+function enterAdminUI() {
+    isAdminMode = true;
     document.getElementById('userView').classList.add('hidden');
     document.getElementById('adminView').classList.remove('hidden');
-    document.getElementById('btnAdminToggle').innerText = "🏠 SHOP VIEW";
-    renderAdminConsole();
+    document.getElementById('btnAdminToggle').innerText = "🏠 SHOP CATALOG";
+    renderAdminDashboard();
 }
 
-// PIN Setup Utility
-document.getElementById('btnPinSetup').onclick = () => {
-    const newPin = prompt("Set New 4-Digit Security PIN:", adminPin);
-    if (newPin && newPin.length === 4) {
-        adminPin = newPin;
-        localStorage.setItem('keval_admin_pin', newPin);
-        
-        const enable = confirm("Enable PIN protection for Admin Panel?");
-        pinRequired = enable;
-        localStorage.setItem('keval_pin_enabled', enable ? 'ON' : 'OFF');
-        alert("Security Configuration Updated.");
-    }
-};
+// Global Event Listeners
+document.getElementById('userSearch').oninput = renderUserShowroom;
+document.getElementById('userFilterCat').onchange = renderUserShowroom;
+document.getElementById('userFilterBrand').onchange = renderUserShowroom;
+document.getElementById('adminSearch').oninput = renderAdminDashboard;
 
-// Audio Toggle Utility
-document.getElementById('btnAudioToggle').onclick = () => {
-    audioEnabled = !audioEnabled;
-    localStorage.setItem('keval_audio', audioEnabled ? 'ON' : 'OFF');
-    document.getElementById('btnAudioToggle').innerText = `🔊 AUDIO: ${audioEnabled ? 'ON' : 'OFF'}`;
-    if (audioEnabled) triggerSound('success');
-};
+document.getElementById('btnVerifyPin').onclick = executePinVerification;
+document.getElementById('btnCompClear').onclick = clearCompare;
+document.getElementById('btnOpenMatrix').onclick = runComparisonMatrix;
 
-// Search Handlers
-document.getElementById('userSearch').oninput = renderUserCatalog;
-document.getElementById('userFilterCat').onchange = renderUserCatalog;
-document.getElementById('userFilterBrand').onchange = renderUserCatalog;
-document.getElementById('adminSearch').oninput = renderAdminConsole;
-
-// Initialization Sequence
 document.getElementById('btnCreateEntry').onclick = () => {
-    clearProductForm();
-    document.getElementById('modalTitle').innerText = "CREATE NEW DATABASE ENTRY";
+    resetFormState();
+    document.getElementById('modalTitle').innerText = "NEW SYSTEM ENTRY";
     toggleModal('entryModal', true);
 };
 
+document.getElementById('btnAudioToggle').onclick = () => {
+    isAudioEnabled = !isAudioEnabled;
+    localStorage.setItem('keval_audio', isAudioEnabled ? 'ON' : 'OFF');
+    document.getElementById('btnAudioToggle').innerText = `🔊 AUDIO: ${isAudioEnabled ? 'ON' : 'OFF'}`;
+    if (isAudioEnabled) playInterfaceSound('success');
+};
+
+document.getElementById('btnPinSetup').onclick = () => {
+    const newPin = prompt("SET 4-DIGIT SECURITY PIN:", masterAdminPin);
+    if (newPin && newPin.length === 4) {
+        masterAdminPin = newPin;
+        localStorage.setItem('keval_admin_pin', newPin);
+        const lock = confirm("ACTIVATE PIN PROTECTION FOR CONSOLE?");
+        isPinSecurityActive = lock;
+        localStorage.setItem('keval_pin_enabled', lock ? 'ON' : 'OFF');
+        alert("SECURITY PROFILE UPDATED.");
+    }
+};
+
 document.getElementById('btnExportPanel').onclick = () => {
-    // Basic PDF Export using html2pdf
-    const element = document.getElementById('adminList');
+    const list = document.getElementById('adminList');
     const opt = {
         margin: 0.5,
-        filename: `Keval_Inventory_${new Date().toLocaleDateString()}.pdf`,
+        filename: `Inventory_Audit_${new Date().toLocaleDateString()}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
-    html2pdf().set(opt).from(element).save();
+    html2pdf().set(opt).from(list).save();
 };
 
-// Start Data Sync
-initializeDataSync();
-
-console.log("Keval Mobile Zone: Logic Engine Active.");
+/**
+ * START ENGINE
+ * ------------------------------------------------------------
+ */
+startLiveSync();
+console.log("KEVAL MOBILE ZONE: MASTER ENGINE ONLINE.");
