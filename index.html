@@ -3,100 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Keval Mobile Zone | Premium Production Portal</title>
+    <title>Keval Mobile Zone | Master Inventory & Showroom</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        /* ==========================================
-           1. MASTER NEON DESIGN SYSTEM
-           ========================================== */
+        /* ============================================================
+           NEON INDUSTRIAL DESIGN SYSTEM (JARVIS INSPIRED)
+           ============================================================ */
         :root {
             --bg: #050508; --panel: #0d0d15; --cyan: #00f0ff;
             --green: #00ff88; --purple: #bc00ff; --red: #ff3366;
             --yellow: #ffcc00; --border: #1e1e30; --text: #f0f0ff;
-            --text-dim: #8888aa;
+            --text-dim: #8888aa; --glass: rgba(255, 255, 255, 0.03);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text); overflow-x: hidden; line-height: 1.6; }
         .hidden { display: none !important; }
-        .container { padding: 20px; max-width: 1500px; margin: 0 auto; min-height: 85vh; }
-        
-        /* Navigation */
+        .full-w { width: 100%; }
+        .container { padding: 25px; max-width: 1600px; margin: 0 auto; min-height: 85vh; }
+
+        /* --- Header & Navigation --- */
         .neon-nav {
             display: flex; justify-content: space-between; align-items: center;
             padding: 15px 25px; background: var(--panel); border-bottom: 2px solid var(--purple);
             position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px);
-            box-shadow: 0 0 15px rgba(188, 0, 255, 0.3);
+            box-shadow: 0 0 20px rgba(188, 0, 255, 0.2);
         }
-        .nav-title { font-size: 1.2rem; font-weight: 900; color: var(--cyan); letter-spacing: 2px; }
+        .nav-title { font-size: 1.2rem; font-weight: 950; color: var(--cyan); letter-spacing: 2px; text-transform: uppercase; }
 
-        /* Buttons */
-        button { border: none; border-radius: 6px; padding: 10px 20px; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 0.8rem; }
-        .btn-neon-cyan { background: var(--cyan); color: #000; box-shadow: 0 0 10px var(--cyan); }
-        .btn-neon-green { background: var(--green); color: #000; }
-        .btn-neon-purple { background: var(--purple); color: #fff; box-shadow: 0 0 10px var(--purple); }
-        .btn-neon-icon { background: rgba(0,240,255,0.1); color: var(--cyan); border: 1px solid var(--cyan); }
-        .btn-red-mini { background: var(--red); color: #fff; padding: 4px 8px; font-size: 0.7rem; }
+        /* --- Master Buttons --- */
+        button { border: none; border-radius: 8px; padding: 12px 20px; font-weight: 800; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+        button:active { transform: scale(0.95); }
+        .btn-cyan { background: var(--cyan); color: #000; box-shadow: 0 0 10px var(--cyan); }
+        .btn-green { background: var(--green); color: #000; }
+        .btn-purple { background: var(--purple); color: #fff; box-shadow: 0 0 10px var(--purple); }
+        .btn-icon { background: rgba(0, 240, 255, 0.05); color: var(--cyan); border: 1px solid var(--cyan); }
+        .btn-red-mini { background: var(--red); color: #fff; padding: 5px 10px; font-size: 0.65rem; border-radius: 4px; }
 
-        /* Inputs */
-        .neon-input, .neon-select, .neon-area { 
-            width: 100%; padding: 14px; background: #000; border: 1px solid var(--border); 
-            color: #fff; margin-bottom: 15px; border-radius: 8px; outline: none; 
-        }
-        .neon-input:focus { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,240,255,0.2); }
+        /* --- Inputs & Selection --- */
+        .neon-input, .neon-select, .neon-area { width: 100%; padding: 15px; background: #000; border: 1px solid var(--border); color: #fff; margin-bottom: 15px; border-radius: 10px; outline: none; transition: 0.3s; }
+        .neon-input:focus { border-color: var(--cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.2); }
 
-        /* Grid & Cards */
-        .neon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        /* --- Product Showroom Grid --- */
+        .neon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
         .card { 
-            background: var(--panel); border: 1px solid var(--border); border-radius: 15px; 
-            padding: 20px; cursor: pointer; position: relative; overflow: hidden; transition: 0.3s;
+            background: var(--panel); border: 1px solid var(--border); border-radius: 20px; 
+            padding: 25px; cursor: pointer; position: relative; overflow: hidden; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .card:hover { border-color: var(--cyan); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .card::after { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--purple); }
-        .card-img-box { height: 200px; background: #000; display: flex; align-items: center; justify-content: center; border-radius: 10px; margin-bottom: 15px; overflow: hidden; }
-        .card-img-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .card:hover { border-color: var(--cyan); transform: translateY(-10px); box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
+        .card::before { content: ""; position: absolute; top: 0; left: 0; width: 5px; height: 100%; background: var(--purple); box-shadow: 0 0 10px var(--purple); }
+        .card-img-box { height: 220px; background: #000; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; overflow: hidden; border: 1px solid var(--glass); }
+        .card-img-box img { max-width: 90%; max-height: 90%; object-fit: contain; transition: 0.3s; }
+        .card:hover .card-img-box img { transform: scale(1.05); }
 
-        /* Comparison Dock */
+        /* --- Comparison Matrix Dock --- */
         .compare-dock { 
-            position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(13,13,21,0.95); 
-            border-top: 2px solid var(--cyan); padding: 15px 25px; z-index: 1500; backdrop-filter: blur(10px);
+            position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(5, 5, 8, 0.98); 
+            border-top: 2px solid var(--cyan); padding: 15px 30px; z-index: 1500; backdrop-filter: blur(15px);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
         }
-        .dock-items { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
-        .dock-pill { background: #000; border: 1px solid var(--border); padding: 8px 15px; border-radius: 20px; font-size: 0.8rem; white-space: nowrap; }
+        .dock-items { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; }
+        .dock-pill { background: #11111d; border: 1px solid var(--border); padding: 10px 20px; border-radius: 30px; font-size: 0.85rem; white-space: nowrap; display: flex; align-items: center; gap: 10px; }
 
-        /* Modals */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .modal { background: var(--panel); padding: 30px; border-radius: 15px; width: 100%; max-width: 850px; max-height: 92vh; overflow-y: auto; border: 1px solid var(--border); }
-        .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        /* --- Modals & Overlays --- */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(12px); }
+        .modal { background: var(--panel); padding: 35px; border-radius: 20px; width: 100%; max-width: 900px; max-height: 94vh; overflow-y: auto; border: 1px solid var(--border); box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
 
-        /* Detail View Layout */
-        .detail-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; }
-        .main-frame { height: 400px; background: #000; border-radius: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--border); }
-        .thumb-row { display: flex; gap: 10px; margin-top: 15px; overflow-x: auto; }
-        .thumb { width: 70px; height: 70px; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; object-fit: cover; }
-        .thumb.active { border-color: var(--cyan); }
+        /* --- Detailed Product View --- */
+        .detail-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 50px; }
+        .main-frame { height: 450px; background: #000; border-radius: 20px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--border); }
+        .thumb-row { display: flex; gap: 15px; margin-top: 20px; overflow-x: auto; padding-bottom: 10px; }
+        .thumb { width: 80px; height: 80px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; object-fit: cover; transition: 0.2s; background: #000; }
+        .thumb.active { border-color: var(--cyan); box-shadow: 0 0 15px var(--cyan); }
 
-        /* Admin/Ledger Rows */
-        .admin-item { background: #11111d; padding: 18px; border-radius: 12px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .ledger-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
-        .ledger-row.sale { border-left: 5px solid var(--red); background: rgba(255,51,102,0.05); }
-        .ledger-row.purchase { border-left: 5px solid var(--green); background: rgba(0,255,136,0.05); }
+        /* --- Admin Dashboard Layout --- */
+        .admin-item { background: #11111d; padding: 22px; border-radius: 15px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; transition: 0.2s; }
+        .admin-item:hover { background: #161625; border-color: var(--text-dim); }
+        .ledger-row { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .ledger-row.sale { border-left: 6px solid var(--red); background: rgba(255, 23, 68, 0.05); }
+        .ledger-row.purchase { border-left: 6px solid var(--green); background: rgba(0, 255, 136, 0.05); }
 
-        /* Matrix Table */
-        .matrix-table { width: 100%; border-collapse: collapse; min-width: 1000px; }
-        .matrix-table th, .matrix-table td { padding: 15px; border: 1px solid var(--border); text-align: left; }
-        .matrix-table th { background: #000; color: var(--cyan); }
+        /* --- Matrix Styling --- */
+        .matrix-table { width: 100%; border-collapse: collapse; min-width: 1100px; background: #000; }
+        .matrix-table th, .matrix-table td { padding: 20px; border: 1px solid var(--border); text-align: left; vertical-align: top; }
+        .matrix-table th { background: #111; color: var(--cyan); font-weight: 900; }
 
-        /* Footer */
-        .neon-footer { text-align: center; padding: 50px; background: var(--panel); border-top: 1px solid var(--border); margin-top: 60px; }
-        .credit-text { font-size: 1.1rem; font-weight: 900; color: var(--text); }
-        .credit-text span { color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
+        /* --- Footer --- */
+        .neon-footer { text-align: center; padding: 60px; background: var(--panel); border-top: 1px solid var(--border); margin-top: 80px; }
+        .credit-text { font-size: 1.1rem; font-weight: 900; color: var(--text); letter-spacing: 1px; }
+        .credit-text span { color: var(--cyan); text-shadow: 0 0 15px var(--cyan); }
 
-        @media (max-width: 850px) { .detail-grid { grid-template-columns: 1fr; } .grid-2 { grid-template-columns: 1fr !important; } .admin-item { flex-direction: column; text-align: center; gap: 15px; } }
+        @media (max-width: 900px) { .detail-grid { grid-template-columns: 1fr; } .grid-2 { grid-template-columns: 1fr !important; } .admin-item { flex-direction: column; text-align: center; gap: 20px; } }
     </style>
 </head>
 <body>
@@ -104,14 +106,14 @@
     <header class="neon-nav">
         <div class="nav-title">KEVAL MOBILE ZONE</div>
         <div class="nav-actions">
-            <button id="btnAdminToggle" class="btn-neon-icon">⚙️ ADMIN CONTROL</button>
+            <button id="btnAdminToggle" class="btn-icon">⚙️ CONTROL PANEL</button>
         </div>
     </header>
 
     <main id="userView" class="container">
-        <div class="filter-bar" style="margin-bottom:30px;">
-            <input type="text" id="userSearch" placeholder="Search Brand, Model, or Specs..." class="neon-input">
-            <div style="display:flex; gap:10px;">
+        <div class="filter-bar" style="margin-bottom:40px; background: var(--panel); padding: 25px; border-radius: 15px; border: 1px solid var(--border);">
+            <input type="text" id="userSearch" placeholder="Search Brand, Model, or Tech Specs..." class="neon-input">
+            <div style="display:flex; gap:15px;">
                 <select id="userFilterCat" class="neon-select"><option value="">ALL CATEGORIES</option></select>
                 <select id="userFilterBrand" class="neon-select"><option value="">ALL BRANDS</option></select>
             </div>
@@ -120,145 +122,164 @@
         <div id="productGrid" class="neon-grid"></div>
 
         <div id="compareDock" class="compare-dock hidden">
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--cyan); font-weight:bold; font-size:0.8rem;">
-                <span>COMPARE DECK (<span id="compCount">0</span>/5)</span>
-                <button onclick="clearCompare()" class="btn-red-mini">✕ CLEAR</button>
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px; color:var(--cyan); font-weight:900; font-size:0.8rem; letter-spacing: 1px;">
+                <span>COMPARISON DECK (<span id="compCount">0</span>/5)</span>
+                <button onclick="clearCompare()" class="btn-red-mini">✕ CLEAR ALL</button>
             </div>
             <div id="dockItems" class="dock-items"></div>
-            <button onclick="runMatrix()" class="btn-neon-purple full-w">📊 EXECUTE COMPARISON MATRIX</button>
+            <button onclick="runMatrix()" class="btn-purple full-w">📊 GENERATE COMPARISON MATRIX</button>
         </div>
     </main>
 
     <main id="adminView" class="container hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-            <h2 style="color:var(--cyan); letter-spacing:2px;">WAREHOUSE CONSOLE</h2>
-            <div style="display:flex; gap:10px;">
-                <button id="btnExportPDF" class="btn-neon-green">💾 EXPORT PDF</button>
-                <button id="btnCreateEntry" class="btn-neon-cyan">+ NEW ITEM</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:35px;">
+            <h2 style="color:var(--cyan); letter-spacing:3px; font-weight: 900;">ADMIN CONSOLE</h2>
+            <div style="display:flex; gap:15px;">
+                <button id="btnExportPDF" class="btn-green">💾 EXPORT WAREHOUSE PDF</button>
+                <button id="btnCreateEntry" class="btn-cyan">+ CREATE NEW ENTRY</button>
             </div>
         </div>
-        <input type="text" id="adminSearch" placeholder="Filter inventory..." class="neon-input">
+        <input type="text" id="adminSearch" placeholder="Filter inventory..." class="neon-input" style="margin-bottom: 25px;">
         <div id="adminList"></div>
     </main>
 
     <footer class="neon-footer">
         <p class="credit-text">Created By <span>Jigar</span> for Keval Mobile Zone Padra</p>
+        <p style="font-size: 0.7rem; color: var(--text-dim); margin-top: 10px;">© 2026 All Rights Reserved.</p>
     </footer>
 
     <div id="pinGate" class="overlay hidden">
-        <div class="modal" style="max-width:400px; text-align:center;">
-            <h3 style="margin-bottom:20px;">🔒 ADMIN ACCESS</h3>
-            <input type="password" id="pinInput" maxlength="4" placeholder="••••" class="neon-input" style="font-size:2.5rem; text-align:center; letter-spacing:10px;">
-            <button onclick="verifyPin()" class="btn-neon-green full-w">VERIFY PIN</button>
+        <div class="modal" style="max-width:450px; text-align:center;">
+            <h3 style="margin-bottom:25px; letter-spacing: 2px;">🔒 SECURITY VERIFICATION</h3>
+            <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 20px;">ACCESSING RESTRICTED ADMIN CONSOLE</p>
+            <input type="password" id="pinInput" maxlength="4" placeholder="••••" class="neon-input" style="font-size:3rem; text-align:center; letter-spacing:15px; border-width: 2px; border-color: var(--purple);">
+            <button onclick="verifyPin()" class="btn-green full-w" style="margin-top: 10px; padding: 18px;">VERIFY IDENTITY</button>
         </div>
     </div>
 
     <div id="entryModal" class="overlay hidden">
         <div class="modal">
             <div class="modal-head">
-                <h3 id="modalTitle">DATABASE ENTRY</h3>
-                <button onclick="toggleModal('entryModal', false)" style="background:none; color:#fff; font-size:1.5rem;">✕</button>
+                <h3 id="modalTitle" style="font-weight: 900; letter-spacing: 1px;">DATABASE ENTRY</h3>
+                <button onclick="toggleModal('entryModal', false)" style="background:none; color:#fff; font-size:2rem;">✕</button>
             </div>
             <form id="productForm">
                 <input type="hidden" id="editId">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                    <select id="pCat" class="neon-select" required>
-                        <option value="MOBILE 📱">MOBILE 📱</option>
-                        <option value="TV 📺">TV 📺</option>
-                        <option value="FRIDGE ❄️">FRIDGE ❄️</option>
-                        <option value="HOME THEATRE 🔊">HOME THEATRE 🔊</option>
-                    </select>
-                    <select id="pBrand" class="neon-select" required>
-                        <option value="VIVO">VIVO</option>
-                        <option value="OPPO">OPPO</option>
-                        <option value="SAMSUNG">SAMSUNG</option>
-                        <option value="REALME">REALME</option>
-                        <option value="POCO">POCO</option>
-                        <option value="REDMI MI">REDMI MI</option>
-                        <option value="TECNO">TECNO</option>
-                        <option value="1+ ONEPLUS">1+ ONEPLUS</option>
-                    </select>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                    <div class="field">
+                        <label style="font-size: 0.7rem; color: var(--cyan); font-weight: bold; margin-left: 5px;">CATEGORY</label>
+                        <select id="pCat" class="neon-select" required>
+                            <option value="MOBILE 📱">MOBILE 📱</option>
+                            <option value="TV 📺">TV 📺</option>
+                            <option value="FRIDGE ❄️">FRIDGE ❄️</option>
+                            <option value="HOME THEATRE 🔊">HOME THEATRE 🔊</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label style="font-size: 0.7rem; color: var(--cyan); font-weight: bold; margin-left: 5px;">BRAND</label>
+                        <select id="pBrand" class="neon-select" required>
+                            <option value="VIVO">VIVO</option>
+                            <option value="OPPO">OPPO</option>
+                            <option value="SAMSUNG">SAMSUNG</option>
+                            <option value="REALME">REALME</option>
+                            <option value="POCO">POCO</option>
+                            <option value="REDMI MI">REDMI MI</option>
+                            <option value="TECNO">TECNO</option>
+                            <option value="1+ ONEPLUS">1+ ONEPLUS</option>
+                        </select>
+                    </div>
                 </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                    <input type="text" id="pSeries" placeholder="Series" class="neon-input">
-                    <input type="text" id="pModel" placeholder="Model Name" class="neon-input" required>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                    <input type="text" id="pSeries" placeholder="Series (e.g. T-Series)" class="neon-input">
+                    <input type="text" id="pModel" placeholder="Model Name (e.g. T4 Pro)" class="neon-input" required>
                 </div>
-                <input type="text" id="pDealer" placeholder="Dealer Name" class="neon-input" required>
+                <input type="text" id="pDealer" placeholder="Assigned Dealer Name" class="neon-input" required>
                 
-                <div style="background:#000; padding:15px; border-radius:8px; border:1px dashed var(--purple); margin-bottom:15px;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <span style="font-weight:bold; color:var(--purple);">HD IMAGES</span>
-                        <button type="button" onclick="addColor()" class="btn-neon-purple" style="padding:5px 10px; font-size:0.6rem;">+ ADD PHOTO</button>
+                <div style="background:#000; padding:25px; border-radius:15px; border:1px dashed var(--purple); margin-bottom:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <span style="font-weight:900; color:var(--purple); font-size: 0.8rem;">HD COLOR ASSETS (CLOUDINARY)</span>
+                        <button type="button" onclick="addColor()" class="btn-purple" style="padding:6px 15px; font-size:0.65rem;">+ ADD IMAGE SLOT</button>
                     </div>
-                    <div id="colorContainer"></div>
+                    <div id="colorContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
                 </div>
 
-                <div style="background:#000; padding:15px; border-radius:8px; border:1px solid var(--border); margin-bottom:15px;">
-                    <div style="display:flex; gap:10px;">
+                <div style="background:#000; padding:25px; border-radius:15px; border:1px solid var(--border); margin-bottom:20px;">
+                    <span style="font-weight:900; color:var(--cyan); font-size: 0.8rem; display:block; margin-bottom: 15px;">VARIANTS, PRICING & STOCK</span>
+                    <div style="display:flex; gap:12px;">
                         <input type="text" id="vName" placeholder="RAM/ROM" class="neon-input" style="flex:2;">
-                        <input type="number" id="vPrice" placeholder="Price" class="neon-input" style="flex:1;">
+                        <input type="number" id="vPrice" placeholder="Price ₹" class="neon-input" style="flex:1;">
                         <input type="number" id="vStock" placeholder="Stock" class="neon-input" style="flex:1;">
-                        <button type="button" onclick="addVariant()" class="btn-neon-cyan" style="height:48px;">ADD</button>
+                        <button type="button" onclick="addVariant()" class="btn-cyan" style="height:55px;">ADD</button>
                     </div>
-                    <div id="variantPills" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;"></div>
+                    <div id="variantPills" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:15px;"></div>
                 </div>
 
-                <textarea id="pSpecs" placeholder="Paste Specs (One per line)..." class="neon-area" rows="4"></textarea>
-                <button type="submit" class="btn-neon-cyan full-w" style="padding:15px; font-size:1rem; box-shadow: 0 0 20px var(--purple);">PUBLISH TO SHOP ENGINE</button>
+                <textarea id="pSpecs" placeholder="Paste Tech Specifications (One per line)..." class="neon-area" rows="4"></textarea>
+                <button type="submit" class="btn-cyan full-w" style="padding:20px; font-size:1.1rem; box-shadow: 0 0 30px var(--purple); border-radius: 12px;">PUBLISH TO CLOUD INVENTORY</button>
             </form>
         </div>
     </div>
 
     <div id="ledgerModal" class="overlay hidden">
         <div class="modal">
-            <div class="modal-head"><h3>WAREHOUSE AUDIT LEDGER</h3><button onclick="toggleModal('ledgerModal', false)">✕</button></div>
-            <div style="background:rgba(0,0,0,0.3); padding:20px; border-radius:10px; border:1px solid var(--purple); margin-bottom:20px;">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+            <div class="modal-head"><h3>INVENTORY AUDIT LEDGER</h3><button onclick="toggleModal('ledgerModal', false)" style="background:none; color:#fff; font-size:2rem;">✕</button></div>
+            <div style="background:rgba(0,0,0,0.5); padding:25px; border-radius:15px; border:1px solid var(--purple); margin-bottom:25px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
                     <select id="lVar" class="neon-select"></select>
                     <select id="lType" class="neon-select"><option value="PURCHASE">STOCK IN (+)</option><option value="SALE">STOCK OUT (-)</option></select>
                 </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
                     <input type="number" id="lQty" placeholder="Quantity" class="neon-input" value="1">
-                    <input type="text" id="lNote" placeholder="Note (Invoice/Customer)" class="neon-input">
+                    <input type="text" id="lNote" placeholder="Transaction Note" class="neon-input">
                 </div>
-                <button onclick="commitLedger()" class="btn-neon-green full-w">SAVE TRANSACTION</button>
+                <button onclick="commitLedger()" class="btn-green full-w" style="padding:15px;">EXECUTE TRANSACTION</button>
             </div>
-            <div id="ledgerHistory"></div>
+            <h4 style="font-size: 0.8rem; margin-bottom: 15px; color: var(--text-dim);">TRANSACTIONAL HISTORY & REVERSION</h4>
+            <div id="ledgerHistory" style="max-height: 400px; overflow-y: auto;"></div>
         </div>
     </div>
 
     <div id="detailModal" class="overlay hidden">
-        <div class="modal" style="max-width:1100px;">
-            <button onclick="toggleModal('detailModal', false)" style="float:right; background:none; color:#fff; font-size:1.5rem;">✕</button>
+        <div class="modal" style="max-width:1150px;">
+            <button onclick="toggleModal('detailModal', false)" style="float:right; background:none; color:#fff; font-size:2rem; position: sticky; top: 0; z-index: 10;">✕</button>
             <div class="detail-grid">
                 <div class="detail-visuals">
                     <div class="main-frame"><img id="dMainImg" src=""></div>
                     <div id="dThumbs" class="thumb-row"></div>
                 </div>
                 <div class="detail-info">
-                    <div id="dCat" style="color:var(--cyan); font-weight:bold; font-size:0.8rem;"></div>
-                    <h2 id="dTitle" style="font-size:2.2rem; font-weight:900; margin:10px 0;"></h2>
-                    <div id="dPrice" style="font-size:2.5rem; color:var(--green); font-weight:900; margin-bottom:20px;"></div>
-                    <div style="margin-bottom:20px;"><label style="font-size:0.7rem; color:var(--text-dim);">VARIANTS:</label><div id="dVariants" style="display:flex; gap:10px; margin-top:5px;"></div></div>
-                    <div style="background:rgba(0,255,136,0.1); padding:15px; border-radius:8px; border:1px solid var(--green); margin-bottom:20px;">
-                        STOCK: <span id="dStock" style="font-weight:900; font-size:1.2rem;"></span>
+                    <div id="dCat" style="color:var(--cyan); font-weight:bold; font-size:0.9rem; letter-spacing: 2px;"></div>
+                    <h2 id="dTitle" style="font-size:2.8rem; font-weight:950; margin:15px 0; line-height: 1.1;"></h2>
+                    <div id="dPrice" style="font-size:3rem; color:var(--green); font-weight:950; margin-bottom:25px; text-shadow: 0 0 20px var(--green);"></div>
+                    
+                    <div style="margin-bottom:25px;">
+                        <label style="font-size:0.75rem; color:var(--text-dim); font-weight: bold;">AVAILABLE CONFIGURATIONS:</label>
+                        <div id="dVariants" style="display:flex; flex-wrap:wrap; gap:12px; margin-top:10px;"></div>
                     </div>
-                    <div id="dSpecs" style="border-top:1px solid var(--border); padding-top:20px;"></div>
-                    <div style="margin-top:20px; font-weight:bold; color:var(--cyan);">DEALER: <span id="dDealer"></span></div>
+
+                    <div style="background:rgba(0,255,136,0.1); padding:20px; border-radius:12px; border:1px solid var(--green); margin-bottom:30px;">
+                        <span style="font-weight: 800; font-size: 0.9rem;">WAREHOUSE STATUS:</span> 
+                        <span id="dStock" style="font-weight:950; font-size:1.5rem; margin-left: 15px; color: var(--green);"></span>
+                    </div>
+
+                    <div id="dSpecs" style="border-top:1px solid var(--border); padding-top:25px; font-size: 1rem;"></div>
+                    <div style="margin-top:40px; padding: 20px; background: rgba(0,240,255,0.05); border-radius: 10px; border: 1px solid var(--cyan); font-weight:bold; color:var(--cyan);">
+                        DEALER: <span id="dDealer" style="margin-left: 10px; color: #fff;"></span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="matrixModal" class="overlay hidden">
-        <div class="modal" style="max-width:1300px;">
-            <div class="modal-head"><h3>COMPARISON MATRIX</h3><button onclick="toggleModal('matrixModal', false)">✕</button></div>
-            <div id="matrixBody" style="overflow-x:auto;"></div>
+        <div class="modal" style="max-width:1400px; padding: 40px;">
+            <div class="modal-head"><h3>ADVANCED COMPARISON MATRIX</h3><button onclick="toggleModal('matrixModal', false)" style="background:none; color:#fff; font-size:2rem;">✕</button></div>
+            <div id="matrixBody" style="overflow-x:auto; border-radius: 15px; border: 1px solid var(--border);"></div>
         </div>
     </div>
 
     <script>
-        /* CONFIGURATION */
+        /* 1. INITIALIZATION & SECURITY */
         const firebaseConfig = {
             apiKey: "AIzaSyDcesyj1CJkNpkZVdFb2-k5pXwg-nW8uiQ",
             authDomain: "keval-mobile-zone.firebaseapp.com",
@@ -273,7 +294,7 @@
         const CLOUD = "dgpk8n8xv";
         const PRESET = "keval_shop_preset";
 
-        /* STATE */
+        /* 2. CORE SYSTEM STATE */
         let products = [];
         let isAdmin = false;
         let vDraft = [];
@@ -281,18 +302,18 @@
         let compareQueue = [];
         let activeID = null;
 
-        /* INITIAL SYNC */
+        /* 3. REAL-TIME DATA SYNCHRONIZER */
         db.ref('products').on('value', snap => {
             products = [];
             const data = snap.val();
             if(data) Object.keys(data).forEach(k => products.push({id: k, ...data[k]}));
+            
             buildFilters();
-            isAdmin ? renderAdmin() : renderUser();
+            if(isAdmin) { renderAdmin(); } else { renderUser(); }
+            updateDock();
         });
 
-        /* UI CONTROLS */
-        function toggleModal(id, show) { document.getElementById(id).classList.toggle('hidden', !show); }
-
+        /* 4. USER UI CONTROLLER */
         function renderUser() {
             const grid = document.getElementById('productGrid');
             const q = document.getElementById('userSearch').value.toLowerCase();
@@ -300,98 +321,250 @@
             const brand = document.getElementById('userFilterBrand').value;
             grid.innerHTML = '';
 
-            products.filter(p => {
-                return (p.model.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q)) &&
-                       (cat === "" || p.category === cat) && (brand === "" || p.brand === brand);
-            }).forEach(p => {
-                const img = p.colors?.[0]?.url || '';
+            const filtered = products.filter(p => {
+                const matchQ = (p.model.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q) || p.specs.join(' ').toLowerCase().includes(q));
+                const matchC = (cat === "" || p.category === cat);
+                const matchB = (brand === "" || p.brand === brand);
+                return matchQ && matchC && matchB;
+            });
+
+            if(filtered.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:50px; color:var(--text-dim);">NO PRODUCTS FOUND MATCHING YOUR SEARCH</div>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                const img = p.colors?.[0]?.url || 'https://placehold.co/400x400/000/00f0ff?text=KMZ+MOBILE';
+                const basePrice = parseInt(p.variants[0].price).toLocaleString('en-IN');
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.innerHTML = `
                     <div class="card-img-box" onclick="viewDetails('${p.id}')"><img src="${img}"></div>
-                    <div style="color:var(--cyan); font-size:0.7rem; font-weight:bold;">${p.brand} • ${p.series}</div>
-                    <h3 onclick="viewDetails('${p.id}')">${p.model}</h3>
-                    <div style="font-size:1.8rem; color:var(--green); font-weight:900;">₹${parseInt(p.variants[0].price).toLocaleString('en-IN')}</div>
-                    <button onclick="addToCompare('${p.id}')" class="btn-neon-icon full-w" style="margin-top:10px;">⚖️ COMPARE</button>
+                    <div style="color:var(--cyan); font-size:0.75rem; font-weight:900; letter-spacing:1px; margin-bottom:5px;">${p.brand.toUpperCase()} • ${p.series.toUpperCase()}</div>
+                    <h3 onclick="viewDetails('${p.id}')" style="margin-bottom:10px;">${p.model}</h3>
+                    <div style="font-size:1.8rem; color:var(--green); font-weight:950; text-shadow:0 0 10px rgba(0,255,136,0.3);">₹${basePrice}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+                        <span style="font-size:0.7rem; color:${p.variants[0].stock > 0 ? 'var(--green)' : 'var(--red)'}; font-weight:bold;">
+                            ${p.variants[0].stock > 0 ? 'INSTOCK' : 'OUT OF STOCK'}
+                        </span>
+                        <button onclick="addToCompare('${p.id}')" class="btn-icon" style="padding:6px 12px; font-size:0.65rem;">⚖️ COMPARE</button>
+                    </div>
                 `;
                 grid.appendChild(card);
             });
         }
 
+        /* 5. ADMIN CONSOLE CONTROLLER */
         function renderAdmin() {
             const list = document.getElementById('adminList');
             const q = document.getElementById('adminSearch').value.toLowerCase();
             list.innerHTML = '';
-            products.filter(p => p.model.toLowerCase().includes(q)).forEach(p => {
+            
+            const filtered = products.filter(p => p.model.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q));
+
+            filtered.forEach(p => {
                 const item = document.createElement('div');
                 item.className = 'admin-item';
                 item.innerHTML = `
-                    <div style="flex:1;"><strong>${p.brand} ${p.model}</strong><br><small>Dealer: ${p.dealer}</small></div>
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        <input type="number" value="${p.variants[0].price}" class="neon-input" style="width:110px; margin:0;" onchange="quickPrice('${p.id}', this.value)">
-                        <button onclick="manageL('${p.id}')" class="btn-neon-purple">📦</button>
-                        <button onclick="editP('${p.id}')" class="btn-neon-cyan">✏️</button>
-                        <button onclick="deleteP('${p.id}')" style="background:var(--red); color:#fff;">🗑️</button>
+                    <div style="flex:1;">
+                        <div style="font-size: 1.1rem; font-weight: 900; color: #fff;">${p.brand} ${p.model}</div>
+                        <div style="font-size:0.7rem; color:var(--cyan); font-weight:bold; margin-top:5px;">DEALER: ${p.dealer.toUpperCase()} | STOCK: ${p.variants[0].stock}</div>
+                    </div>
+                    <div style="display:flex; gap:15px; align-items:center;">
+                        <div style="text-align:center;">
+                            <small style="font-size:0.55rem; color:var(--green); display:block; margin-bottom:4px; font-weight:bold;">QUICK PRICE</small>
+                            <input type="number" value="${p.variants[0].price}" class="neon-input" 
+                                   style="width:110px; margin:0; padding:10px; text-align:center; color:var(--green); font-weight:bold; border-color:var(--green);" 
+                                   onchange="quickPrice('${p.id}', this.value)">
+                        </div>
+                        <button onclick="manageL('${p.id}')" class="btn-purple" title="Audit Stock">📦</button>
+                        <button onclick="editP('${p.id}')" class="btn-cyan" title="Edit Full Specs">✏️</button>
+                        <button onclick="deleteP('${p.id}')" style="background:var(--red); color:#fff; border-radius:8px;" title="Delete">🗑️</button>
                     </div>
                 `;
                 list.appendChild(item);
             });
         }
 
-        /* ADMIN FUNCTIONS */
-        function verifyPin() {
-            if(document.getElementById('pinInput').value === "1234") {
-                isAdmin = true;
-                toggleModal('pinGate', false);
-                document.getElementById('adminView').classList.remove('hidden');
-                document.getElementById('userView').classList.add('hidden');
-                document.getElementById('btnAdminToggle').innerText = "🏠 SHOP VIEW";
-                renderAdmin();
-            } else { alert("ACCESS DENIED"); }
+        /* 6. STOCK LEDGER & REVERSION SYSTEM */
+        function manageL(id) {
+            activeID = id;
+            const p = products.find(x => x.id === id);
+            document.getElementById('lVar').innerHTML = p.variants.map((v, i) => `<option value="${i}">${v.name} (Now: ${v.stock})</option>`).join('');
+            document.getElementById('lQty').value = 1;
+            document.getElementById('lNote').value = '';
+            renderLedgerHistory(p);
+            toggleModal('ledgerModal', true);
         }
 
-        document.getElementById('btnAdminToggle').onclick = () => {
-            if(isAdmin) {
-                isAdmin = false;
-                document.getElementById('adminView').classList.add('hidden');
-                document.getElementById('userView').classList.remove('hidden');
-                document.getElementById('btnAdminToggle').innerText = "⚙️ ADMIN CONTROL";
-                renderUser();
-            } else { toggleModal('pinGate', true); }
-        };
+        async function commitLedger() {
+            const p = products.find(x => x.id === activeID);
+            const idx = document.getElementById('lVar').value;
+            const qty = parseInt(document.getElementById('lQty').value);
+            const type = document.getElementById('lType').value;
+            const note = document.getElementById('lNote').value || "Adjustment";
 
-        /* IMAGE HANDLING */
+            if(type === 'SALE') {
+                p.variants[idx].stock = parseInt(p.variants[idx].stock) - qty;
+            } else {
+                p.variants[idx].stock = parseInt(p.variants[idx].stock) + qty;
+            }
+
+            if(!p.ledger) p.ledger = [];
+            p.ledger.push({
+                type, qty, variant: p.variants[idx].name, 
+                date: new Date().toLocaleString('en-IN', {dateStyle:'medium', timeStyle:'short'}), 
+                note 
+            });
+
+            await db.ref('products/' + activeID).set(p);
+            manageL(activeID);
+        }
+
+        async function undoLedger(prodId, index) {
+            if(!confirm("REVERT STOCK AND DELETE RECORD?")) return;
+            const p = products.find(x => x.id === prodId);
+            const log = p.ledger[index];
+            const vIdx = p.variants.findIndex(v => v.name === log.variant);
+            
+            if(vIdx > -1) {
+                if(log.type === 'SALE') {
+                    p.variants[vIdx].stock = parseInt(p.variants[vIdx].stock) + log.qty;
+                } else {
+                    p.variants[vIdx].stock = parseInt(p.variants[vIdx].stock) - log.qty;
+                }
+            }
+
+            p.ledger.splice(index, 1);
+            await db.ref('products/' + prodId).set(p);
+            manageL(prodId);
+        }
+
+        function renderLedgerHistory(p) {
+            const hist = document.getElementById('ledgerHistory');
+            hist.innerHTML = '';
+            if(!p.ledger || p.ledger.length === 0) {
+                hist.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-dim);">NO HISTORY FOUND</div>';
+                return;
+            }
+            [...p.ledger].reverse().forEach((l, i) => {
+                const realIdx = p.ledger.length - 1 - i;
+                const row = document.createElement('div');
+                row.className = `ledger-row ${l.type.toLowerCase()}`;
+                row.innerHTML = `
+                    <div style="flex:1;">
+                        <div style="font-weight:900;">${l.type}: ${l.variant}</div>
+                        <div style="font-size:0.7rem; color:var(--text-dim);">${l.date} - ${l.note}</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:20px;">
+                        <span style="font-weight:950; font-size:1rem; color:${l.type === 'SALE' ? 'var(--red)' : 'var(--green)'};">${l.type === 'SALE' ? '-' : '+'}${l.qty}</span>
+                        <button onclick="undoLedger('${p.id}', ${realIdx})" class="btn-red-mini">UNDO</button>
+                    </div>
+                `;
+                hist.appendChild(row);
+            });
+        }
+
+        /* 7. COMPARISON MATRIX ENGINE */
+        function addToCompare(id) {
+            if(compareQueue.includes(id) || compareQueue.length >= 5) return;
+            compareQueue.push(id);
+            updateDock();
+        }
+
+        function updateDock() {
+            const dock = document.getElementById('compareDock');
+            const items = document.getElementById('dockItems');
+            document.getElementById('compCount').innerText = compareQueue.length;
+            compareQueue.length > 0 ? dock.classList.remove('hidden') : dock.classList.add('hidden');
+            
+            items.innerHTML = compareQueue.map(id => {
+                const p = products.find(x => x.id === id);
+                return `
+                    <div class="dock-pill">
+                        ${p.model} 
+                        <span onclick="removeFromCompare('${id}')" style="color:var(--red); cursor:pointer; font-weight:bold; margin-left:8px;">✕</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function removeFromCompare(id) { compareQueue = compareQueue.filter(x => x !== id); updateDock(); }
+        function clearCompare() { compareQueue = []; updateDock(); }
+
+        function runMatrix() {
+            if(compareQueue.length < 2) { alert("SELECT 2 ITEMS MINIMUM."); return; }
+            const body = document.getElementById('matrixBody');
+            const items = compareQueue.map(id => products.find(x => x.id === id));
+            
+            let html = '<table class="matrix-table"><thead><tr><th>TECHNICAL SPECIFICATIONS</th>';
+            items.forEach(p => {
+                html += `<th style="text-align:center;"><img src="${p.colors[0].url}" style="width:100px; display:block; margin:0 auto 10px auto;">${p.model}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            const features = [
+                { label: 'BRAND / SERIES', func: p => `${p.brand} ${p.series}` },
+                { label: 'BASE PRICE', func: p => `<span style="color:var(--green); font-weight:bold;">₹${parseInt(p.variants[0].price).toLocaleString('en-IN')}</span>` },
+                { label: 'VARIANTS', func: p => p.variants.map(v => v.name).join('<br>') },
+                { label: 'AVAILABLE COLOURS', func: p => p.colors.map(c => c.name).join(', ') },
+                { label: 'FULL SPECIFICATIONS', func: p => p.specs.join('<br>') }
+            ];
+
+            features.forEach(f => {
+                html += `<tr><td style="font-weight:900; color:var(--cyan);">${f.label}</td>`;
+                items.forEach(p => { html += `<td>${f.func(p)}</td>`; });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            body.innerHTML = html;
+            toggleModal('matrixModal', true);
+        }
+
+        /* 8. FORM & IMAGE HANDLING ENGINE */
         async function addColor() {
-            const name = prompt("Color Name (e.g. Sierra Blue):");
-            if(!name) return;
-            const input = document.createElement('input'); input.type = 'file';
+            const col = prompt("Identify Colour (e.g. Phantom Silver):");
+            if(!col) return;
+            const input = document.createElement('input'); 
+            input.type = 'file'; 
+            input.accept = 'image/*';
             input.onchange = async () => {
-                const formData = new FormData();
-                formData.append('file', input.files[0]);
-                formData.append('upload_preset', PRESET);
-                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`, { method: 'POST', body: formData });
-                const data = await res.json();
-                cDraft.push({ name, url: data.secure_url });
-                renderCDraft();
+                alert("UPLOADING HD ASSET... PLEASE WAIT.");
+                const fd = new FormData();
+                fd.append('file', input.files[0]);
+                fd.append('upload_preset', PRESET);
+                try {
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`, { method: 'POST', body: fd });
+                    const dat = await res.json();
+                    cDraft.push({ name: col, url: dat.secure_url });
+                    renderCDraft();
+                } catch(e) { alert("UPLOAD FAILED."); }
             };
             input.click();
         }
 
         function renderCDraft() {
-            document.getElementById('colorContainer').innerHTML = cDraft.map((c, i) => `
-                <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
-                    <img src="${c.url}" width="30"> <span>${c.name}</span>
+            const cont = document.getElementById('colorContainer');
+            cont.innerHTML = cDraft.map((c, i) => `
+                <div class="admin-item" style="padding:10px; margin:0;">
+                    <img src="${c.url}" width="40"> <span>${c.name}</span>
                     <button type="button" onclick="cDraft.splice(${i},1);renderCDraft();" class="btn-red-mini">✕</button>
                 </div>
             `).join('');
         }
 
-        /* VARIANT HANDLING */
         function addVariant() {
             const n = document.getElementById('vName').value;
             const p = document.getElementById('vPrice').value;
             const s = document.getElementById('vStock').value;
-            if(n && p) { vDraft.push({name: n, price: p, stock: s || 0}); renderVDraft(); }
+            if(n && p) {
+                vDraft.push({name: n, price: p, stock: s || 0});
+                document.getElementById('vName').value = '';
+                document.getElementById('vPrice').value = '';
+                document.getElementById('vStock').value = '0';
+                renderVDraft();
+            }
         }
 
         function renderVDraft() {
@@ -400,9 +573,9 @@
             `).join('');
         }
 
-        /* FORM SUBMIT */
         document.getElementById('productForm').onsubmit = async (e) => {
             e.preventDefault();
+            if(vDraft.length === 0) { alert("ADD AT LEAST ONE VARIANT."); return; }
             const id = document.getElementById('editId').value || "PROD_" + Date.now();
             const data = {
                 id, category: document.getElementById('pCat').value, brand: document.getElementById('pBrand').value,
@@ -422,107 +595,53 @@
             renderVDraft(); renderCDraft();
         }
 
-        /* LEDGER ENGINE (STOCK REVERSION) */
-        function manageL(id) {
-            activeID = id;
-            const p = products.find(x => x.id === id);
-            document.getElementById('lVar').innerHTML = p.variants.map((v, i) => `<option value="${i}">${v.name}</option>`).join('');
-            renderLedgerHistory(p);
-            toggleModal('ledgerModal', true);
+        /* 9. AUTHENTICATION & NAVIGATION */
+        function toggleModal(id, show) { document.getElementById(id).classList.toggle('hidden', !show); }
+
+        function verifyPin() {
+            if(document.getElementById('pinInput').value === "1234") {
+                isAdmin = true;
+                toggleModal('pinGate', false);
+                document.getElementById('adminView').classList.remove('hidden');
+                document.getElementById('userView').classList.add('hidden');
+                document.getElementById('btnAdminToggle').innerText = "🏠 VIEW SHOWROOM";
+                document.getElementById('pinInput').value = '';
+                renderAdmin();
+            } else { alert("ACCESS DENIED: PIN INVALID."); document.getElementById('pinInput').value = ''; }
         }
 
-        async function commitLedger() {
-            const p = products.find(x => x.id === activeID);
-            const idx = document.getElementById('lVar').value;
-            const qty = parseInt(document.getElementById('lQty').value);
-            const type = document.getElementById('lType').value;
-            if(type === 'SALE') p.variants[idx].stock = parseInt(p.variants[idx].stock) - qty;
-            else p.variants[idx].stock = parseInt(p.variants[idx].stock) + qty;
-            if(!p.ledger) p.ledger = [];
-            p.ledger.push({ type, qty, variant: p.variants[idx].name, date: new Date().toLocaleDateString(), note: document.getElementById('lNote').value });
-            await db.ref('products/' + activeID).set(p);
-            manageL(activeID);
-        }
+        document.getElementById('btnAdminToggle').onclick = () => {
+            if(isAdmin) {
+                isAdmin = false;
+                document.getElementById('adminView').classList.add('hidden');
+                document.getElementById('userView').classList.remove('hidden');
+                document.getElementById('btnAdminToggle').innerText = "⚙️ CONTROL PANEL";
+                renderUser();
+            } else { toggleModal('pinGate', true); }
+        };
 
-        async function undoLedger(prodId, index) {
-            const p = products.find(x => x.id === prodId);
-            const log = p.ledger[index];
-            const vIdx = p.variants.findIndex(v => v.name === log.variant);
-            if(vIdx > -1) {
-                if(log.type === 'SALE') p.variants[vIdx].stock = parseInt(p.variants[vIdx].stock) + log.qty;
-                else p.variants[vIdx].stock = parseInt(p.variants[vIdx].stock) - log.qty;
-            }
-            p.ledger.splice(index, 1);
-            await db.ref('products/' + prodId).set(p);
-            manageL(prodId);
-        }
-
-        function renderLedgerHistory(p) {
-            document.getElementById('ledgerHistory').innerHTML = (p.ledger || []).slice().reverse().map((l, i) => {
-                const realIdx = p.ledger.length - 1 - i;
-                return `
-                    <div class="ledger-row ${l.type.toLowerCase()}">
-                        <span>${l.type}: ${l.qty} (${l.variant})</span>
-                        <button onclick="undoLedger('${p.id}', ${realIdx})" class="btn-red-mini">UNDO</button>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        /* MATRIX ENGINE */
-        function addToCompare(id) {
-            if(compareQueue.includes(id) || compareQueue.length >= 5) return;
-            compareQueue.push(id);
-            updateDock();
-        }
-
-        function updateDock() {
-            const dock = document.getElementById('compareDock');
-            document.getElementById('compCount').innerText = compareQueue.length;
-            compareQueue.length > 0 ? dock.classList.remove('hidden') : dock.classList.add('hidden');
-            document.getElementById('dockItems').innerHTML = compareQueue.map(id => {
-                const p = products.find(x => x.id === id);
-                return `<div class="dock-pill">${p.model} <span onclick="removeFromCompare('${id}')" style="color:red; cursor:pointer;">✕</span></div>`;
-            }).join('');
-        }
-
-        function removeFromCompare(id) { compareQueue = compareQueue.filter(x => x !== id); updateDock(); }
-        function clearCompare() { compareQueue = []; updateDock(); }
-
-        function runMatrix() {
-            const body = document.getElementById('matrixBody');
-            const items = compareQueue.map(id => products.find(x => x.id === id));
-            let head = '<th>Specs</th>', brands = '<td>Brand</td>', prices = '<td>Price</td>', specs = '<td>Specs</td>';
-            items.forEach(p => {
-                head += `<th><img src="${p.colors[0].url}" style="width:70px;"><br>${p.model}</th>`;
-                brands += `<td>${p.brand}</td>`;
-                prices += `<td>₹${p.variants[0].price}</td>`;
-                specs += `<td>${p.specs.join('<br>')}</td>`;
-            });
-            body.innerHTML = `<table class="matrix-table"><thead><tr>${head}</tr></thead><tbody><tr>${brands}</tr><tr>${prices}</tr><tr>${specs}</tr></tbody></table>`;
-            toggleModal('matrixModal', true);
-        }
-
-        /* DETAIL VIEW */
+        /* 10. PRODUCT DETAIL VIEW LOGIC */
         function viewDetails(id) {
             const p = products.find(x => x.id === id);
+            if(!p) return;
             document.getElementById('dTitle').innerText = p.model;
-            document.getElementById('dCat').innerText = p.category;
+            document.getElementById('dCat').innerText = p.category.toUpperCase();
             document.getElementById('dPrice').innerText = `₹${parseInt(p.variants[0].price).toLocaleString('en-IN')}`;
-            document.getElementById('dStock').innerText = p.variants[0].stock;
+            document.getElementById('dStock').innerText = `${p.variants[0].stock} UNITS`;
             document.getElementById('dDealer').innerText = p.dealer;
             document.getElementById('dMainImg').src = p.colors[0].url;
-            document.getElementById('dThumbs').innerHTML = p.colors.map(c => `<img src="${c.url}" class="thumb" onclick="document.getElementById('dMainImg').src='${c.url}'">`).join('');
-            document.getElementById('dSpecs').innerHTML = p.specs.map(s => `<div>⚡ ${s}</div>`).join('');
-            document.getElementById('dVariants').innerHTML = p.variants.map((v, i) => `<button class="btn-neon-icon" onclick="updateDPrice('${v.price}', '${v.stock}')">${v.name}</button>`).join('');
+            document.getElementById('dThumbs').innerHTML = p.colors.map((c, i) => `<img src="${c.url}" class="thumb ${i===0?'active':''}" onclick="swapImg(this, '${c.url}')">`).join('');
+            document.getElementById('dSpecs').innerHTML = p.specs.map(s => `<div style="margin-bottom:8px;">⚡ ${s}</div>`).join('');
+            document.getElementById('dVariants').innerHTML = p.variants.map((v, i) => `<button class="btn-icon ${i===0?'btn-cyan':''}" onclick="detailSync(this, ${v.price}, ${v.stock})">${v.name}</button>`).join('');
             toggleModal('detailModal', true);
         }
 
-        function updateDPrice(p, s) { document.getElementById('dPrice').innerText = `₹${parseInt(p).toLocaleString('en-IN')}`; document.getElementById('dStock').innerText = s; }
+        function swapImg(el, url) { document.getElementById('dMainImg').src = url; document.querySelectorAll('.thumb').forEach(t=>t.classList.remove('active')); el.classList.add('active'); }
+        function detailSync(btn, p, s) { document.getElementById('dPrice').innerText = `₹${parseInt(p).toLocaleString('en-IN')}`; document.getElementById('dStock').innerText = `${s} UNITS`; btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('btn-cyan')); btn.classList.add('btn-cyan'); }
 
-        /* UTILS */
-        function quickPrice(id, val) { const p = products.find(x => x.id === id); p.variants[0].price = val; db.ref('products/' + id).set(p); }
-        function deleteP(id) { if(confirm("Delete product?")) db.ref('products/' + id).remove(); }
+        /* 11. HELPER TOOLS */
+        function quickPrice(id, val) { const p = products.find(x => x.id === id); if(p && p.variants[0]){ p.variants[0].price = val; db.ref('products/' + id).update(p); } }
+        function deleteP(id) { if(confirm("PERMANENTLY DELETE PRODUCT?")) db.ref('products/' + id).remove(); }
         function editP(id) {
             const p = products.find(x => x.id === id);
             resetForm();
@@ -546,10 +665,17 @@
             document.getElementById('userFilterBrand').innerHTML = '<option value="">ALL BRANDS</option>' + brands.map(b => `<option value="${b}">${b}</option>`).join('');
         }
 
+        /* 12. INITIALIZATION */
         document.getElementById('userSearch').oninput = renderUser;
+        document.getElementById('userFilterCat').onchange = renderUser;
+        document.getElementById('userFilterBrand').onchange = renderUser;
         document.getElementById('adminSearch').oninput = renderAdmin;
         document.getElementById('btnCreateEntry').onclick = () => { resetForm(); toggleModal('entryModal', true); };
-        document.getElementById('btnExportPDF').onclick = () => { html2pdf().from(document.getElementById('adminList')).save(`Inventory_${Date.now()}.pdf`); };
+        document.getElementById('btnExportPDF').onclick = () => { 
+            const list = document.getElementById('adminList');
+            const opt = { margin: 0.5, filename: `Inventory_${Date.now()}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
+            html2pdf().set(opt).from(list).save();
+        };
     </script>
 </body>
 </html>
